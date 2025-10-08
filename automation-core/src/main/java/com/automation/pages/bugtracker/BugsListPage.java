@@ -119,30 +119,90 @@ public class BugsListPage extends NativePage {
      * @return this page object for method chaining
      */
     public BugsListPage goToViewTab() {
-        // Try to switch to WebView context (non-throwing version)
-        boolean inWebView = contextManager.trySwitchToWebView(
-                driver, BugTrackerLocators.APP_PACKAGE, 5000);
+        log.info("Navigating to View Bugs tab");
 
-        if (!inWebView) {
-            log.warn("WebView not available, staying in native context");
+        try {
+            // Ensure native context
             ensureNativeContext();
-            return this;
-        }
 
-        By viewTabLocator = AppiumBy.xpath(
-                "//*[normalize-space()='" + BugTrackerLocators.VIEW_BUGS_TEXT + "']");
+            // Hide keyboard to stabilize layout
+            try {
+                driver.hideKeyboard();
+                sleep(300);
+            } catch (Exception ignored) {}
 
-        By viewPageLocator = By.id(BugTrackerLocators.WEB_VIEW_PAGE_ID);
+            // Scroll up to ensure View Bugs tab is visible
+            gestureHelper.scrollUp();
+            sleep(1000);
 
-        // Check if already on View tab
-        if (driver.findElements(viewPageLocator).isEmpty()) {
-            log.info("Switching to View Bugs tab");
-            waitHelper.createWait(5)
-                    .until(ExpectedConditions.elementToBeClickable(viewTabLocator))
-                    .click();
-            sleep(500);
-        } else {
-            log.debug("Already on View Bugs tab");
+            // First attempt: Click by accessibility ID
+            try {
+                var viewBugsButton = waitHelper.createWait(10)
+                        .until(ExpectedConditions.elementToBeClickable(
+                                AppiumBy.accessibilityId(BugTrackerLocators.VIEW_BUGS_ACCESSIBILITY_ID)));
+
+                viewBugsButton.click();
+                log.info("Clicked 'View Bugs' tab using accessibility ID");
+                sleep(1000);
+
+                // Check if focus changed from Create Bug
+                var createBugButton = driver.findElement(
+                        AppiumBy.accessibilityId(BugTrackerLocators.CREATE_BUG_ACCESSIBILITY_ID));
+                String isFocused = createBugButton.getAttribute("focused");
+
+                if (!"true".equals(isFocused)) {
+                    // Success - focus changed away from Create Bug
+                    log.info("Successfully navigated to View Bugs tab");
+                    sleep(1500);
+                    return this;
+                }
+
+                log.warn("Focus did not change - trying fallback tap at safe coordinates");
+
+            } catch (Exception e) {
+                log.warn("Accessibility ID click failed: {}", e.getMessage());
+            }
+
+            // Fallback: Tap at safe coordinates (right-inner area to avoid overlap)
+            var viewBugsElement = driver.findElement(
+                    AppiumBy.accessibilityId(BugTrackerLocators.VIEW_BUGS_ACCESSIBILITY_ID));
+
+            org.openqa.selenium.Rectangle rect = viewBugsElement.getRect();
+
+            // Tap at 85% from left (right-inner side) and middle vertically
+            int safeX = rect.getX() + (int)(rect.getWidth() * 0.85);
+            int safeY = rect.getY() + rect.getHeight() / 2;
+
+            log.info("Tapping View Bugs at safe coordinates ({}, {})", safeX, safeY);
+
+            org.openqa.selenium.interactions.PointerInput finger = new org.openqa.selenium.interactions.PointerInput(
+                    org.openqa.selenium.interactions.PointerInput.Kind.TOUCH, "finger");
+            org.openqa.selenium.interactions.Sequence tap = new org.openqa.selenium.interactions.Sequence(finger, 0);
+
+            tap.addAction(finger.createPointerMove(java.time.Duration.ZERO,
+                    org.openqa.selenium.interactions.PointerInput.Origin.viewport(), safeX, safeY));
+            tap.addAction(finger.createPointerDown(org.openqa.selenium.interactions.PointerInput.MouseButton.LEFT.asArg()));
+            tap.addAction(finger.createPointerUp(org.openqa.selenium.interactions.PointerInput.MouseButton.LEFT.asArg()));
+
+            driver.perform(java.util.Arrays.asList(tap));
+
+            log.info("Clicked 'View Bugs' tab at safe coordinates");
+
+            // Wait for bugs list to load
+            sleep(1500);
+
+        } catch (Exception e) {
+            log.error("Failed to tap 'View Bugs' button", e);
+
+            // Provide helpful debugging information
+            String availableElements = getAvailableClickableElements();
+            log.error("Available clickable elements:\n{}", availableElements);
+
+            throw new com.automation.exceptions.ElementNotFoundException(
+                    "View Bugs button",
+                    "accessibilityId",
+                    String.format("Button not found. Available elements:\n%s", availableElements)
+            );
         }
 
         return this;
@@ -161,37 +221,21 @@ public class BugsListPage extends NativePage {
     public BugsListPage waitForBugWithTitle(String title) {
         log.info("Waiting for bug with title: {}", title);
 
-        // Try to switch to WebView, but continue in native if not available
-        boolean inWebView = contextManager.trySwitchToWebView(
-                driver, BugTrackerLocators.APP_PACKAGE, 5000);
-
-        if (!inWebView) {
-            log.warn("WebView not available for bug verification, using native context");
-            ensureNativeContext();
-        }
-
-        // First try to find within View page
-        By inViewPageLocator = AppiumBy.xpath(
-                "//*[@id='" + BugTrackerLocators.WEB_VIEW_PAGE_ID + "']" +
-                "//*[contains(normalize-space(.), '" + title + "')]");
+        // Use native context with UiAutomator to find bug by text
+        ensureNativeContext();
 
         try {
-            waitHelper.createWait(15)
-                    .until(ExpectedConditions.presenceOfElementLocated(inViewPageLocator));
+            // Use UiAutomator textContains to find the bug title
+            var bugElement = waitHelper.createWait(15)
+                    .until(ExpectedConditions.presenceOfElementLocated(
+                            AppiumBy.androidUIAutomator(
+                                    BugTrackerLocators.uiSelectorByTextContains(title))));
+
             log.info("Bug found in list: {}", title);
             return this;
         } catch (TimeoutException e) {
-            // Try finding anywhere on page as fallback
-            log.debug("Bug not found in view page, trying anywhere on page");
-
-            By anywhereLocator = AppiumBy.xpath(
-                    "//*[contains(normalize-space(.), '" + title + "')]");
-
-            waitHelper.createWait(15)
-                    .until(ExpectedConditions.presenceOfElementLocated(anywhereLocator));
-
-            log.info("Bug found on page (outside view container): {}", title);
-            return this;
+            log.error("Bug not found with title: {}", title);
+            throw e;
         }
     }
 
@@ -203,24 +247,61 @@ public class BugsListPage extends NativePage {
     public java.util.List<String> getAllBugTitles() {
         log.info("Reading all bug titles from View Bugs page");
 
-        goToViewTab();
+        // Use native context
+        ensureNativeContext();
 
         try {
-            // Wait for bugs container to be present
+            // Wait for bug list container to be present
             waitHelper.createWait(10)
                     .until(ExpectedConditions.presenceOfElementLocated(
-                            By.id(BugTrackerLocators.WEB_VIEW_PAGE_ID)));
-
-            // Find all bug title elements in the bug list
-            var bugElements = driver.findElements(
-                    AppiumBy.xpath("//*[@id='" + BugTrackerLocators.WEB_VIEW_PAGE_ID + "']//h3"));
+                            AppiumBy.androidUIAutomator(
+                                    BugTrackerLocators.uiSelectorById("bugList"))));
 
             java.util.List<String> bugTitles = new java.util.ArrayList<>();
-            for (var element : bugElements) {
-                String title = element.getText();
-                if (title != null && !title.trim().isEmpty()) {
-                    bugTitles.add(title);
+            java.util.Set<String> uniqueTitles = new java.util.HashSet<>();
+
+            int previousSize = 0;
+            int noNewBugsCount = 0;
+
+            // Keep scrolling until no new bugs are found
+            while (true) {
+                // Find all TextViews that contain "(ID:" using a simpler approach
+                var bugElements = driver.findElements(
+                        AppiumBy.androidUIAutomator(
+                                "new UiSelector().className(\"android.widget.TextView\").textContains(\"(ID:\")"));
+
+                log.debug("Found {} elements with '(ID:' on screen", bugElements.size());
+
+                // Add unique bug titles
+                for (var element : bugElements) {
+                    String title = element.getText();
+                    log.debug("Element text: '{}'", title);
+                    if (title != null && !title.trim().isEmpty() && uniqueTitles.add(title)) {
+                        bugTitles.add(title);
+                        log.debug("Added bug to list: {}", title);
+                    }
                 }
+
+                log.debug("Current bug count: {} (previous: {})", bugTitles.size(), previousSize);
+
+                // Check if we found new bugs
+                if (bugTitles.size() == previousSize) {
+                    noNewBugsCount++;
+                    log.debug("No new bugs found. Count: {}", noNewBugsCount);
+                    // If no new bugs found after 2 scroll attempts, we've reached the bottom
+                    if (noNewBugsCount >= 2) {
+                        log.info("Reached bottom of bug list");
+                        break;
+                    }
+                } else {
+                    noNewBugsCount = 0;
+                    previousSize = bugTitles.size();
+                    log.debug("Found new bugs. Total now: {}", bugTitles.size());
+                }
+
+                // Scroll down to see more bugs
+                gestureHelper.scrollDown();
+                sleep(500);
             }
 
             log.info("Found {} bugs in the list", bugTitles.size());
@@ -254,6 +335,177 @@ public class BugsListPage extends NativePage {
 
         log.info("Clicked on bug, form should open");
         return new BugFormPage(driver, waitHelper, gestureHelper, contextManager);
+    }
+
+    /**
+     * Clicks the Edit button for a bug with the specified title.
+     * This opens the edit form for the bug.
+     *
+     * @param bugTitle The title of the bug to edit
+     * @return EditBugPage for editing the bug
+     */
+    public EditBugPage clickEditButtonForBug(String bugTitle) {
+        log.info("Clicking Edit button for bug: {}", bugTitle);
+
+        // Wait for bug list to be visible (we're already on View Bugs tab)
+        sleep(2000);
+
+        // Use native context with UiAutomator to find the Edit button
+        ensureNativeContext();
+
+        try {
+            // First, verify the bug exists by finding its title
+            var bugTitleElement = waitHelper.createWait(10)
+                    .until(ExpectedConditions.presenceOfElementLocated(
+                            AppiumBy.androidUIAutomator(
+                                    BugTrackerLocators.uiSelectorByTextContains(bugTitle))));
+
+            log.info("Bug found: {}", bugTitle);
+
+            // Scroll horizontally to bring the Edit button into view
+            // The Edit button might be off-screen to the right if title is long
+            gestureHelper.scrollRight();
+            sleep(500);
+
+            // Find the Edit button using UiAutomator
+            // The Edit button should be near the bug title
+            var editButton = waitHelper.createWait(10)
+                    .until(ExpectedConditions.elementToBeClickable(
+                            AppiumBy.androidUIAutomator(
+                                    BugTrackerLocators.uiSelectorByText(BugTrackerLocators.EDIT_BUTTON_TEXT))));
+
+            editButton.click();
+            log.info("Clicked Edit button for bug: {}", bugTitle);
+            sleep(1500);
+
+            return new EditBugPage(driver, waitHelper, gestureHelper, contextManager);
+
+        } catch (Exception e) {
+            log.error("Failed to click Edit button for bug: {}", bugTitle, e);
+
+            // Provide helpful debugging information
+            String availableElements = getAvailableClickableElements();
+            log.error("Available clickable elements:\n{}", availableElements);
+
+            throw new com.automation.exceptions.ElementNotFoundException(
+                    "Edit button for bug: " + bugTitle,
+                    "UiAutomator",
+                    String.format("Could not find Edit button. Available elements:\n%s", availableElements));
+        }
+    }
+
+    /**
+     * Clicks on a bug card to view its details.
+     *
+     * @param bugTitle The title of the bug to view
+     * @return this page object for method chaining
+     */
+    public BugsListPage clickBugCard(String bugTitle) {
+        log.info("Clicking on bug card: {}", bugTitle);
+
+        // Use native context
+        ensureNativeContext();
+
+        // Wait a moment for the list to be ready
+        sleep(1000);
+
+        try {
+            // Find and click the bug title
+            var bugCard = waitHelper.createWait(10)
+                    .until(ExpectedConditions.elementToBeClickable(
+                            AppiumBy.androidUIAutomator(
+                                    BugTrackerLocators.uiSelectorByTextContains(bugTitle))));
+
+            bugCard.click();
+            log.info("Clicked on bug card: {}", bugTitle);
+            sleep(1500); // Wait for details to expand
+
+            return this;
+        } catch (Exception e) {
+            log.error("Failed to click bug card: {}", bugTitle, e);
+            throw new com.automation.exceptions.ElementNotFoundException(
+                    "Bug card: " + bugTitle,
+                    "UiAutomator",
+                    "Could not find bug card. Exception: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Clicks on a status filter button (All, Open, Fixed, Closed, Not a Bug).
+     *
+     * @param statusFilter The status filter to click (e.g., "Fixed")
+     * @return this page object for method chaining
+     */
+    public BugsListPage clickStatusFilter(String statusFilter) {
+        log.info("Clicking status filter: {}", statusFilter);
+
+        // Use native context
+        ensureNativeContext();
+
+        // Scroll up to ensure filters are visible
+        gestureHelper.scrollUp();
+        sleep(500);
+
+        try {
+            var filterButton = waitHelper.createWait(10)
+                    .until(ExpectedConditions.elementToBeClickable(
+                            AppiumBy.androidUIAutomator(
+                                    BugTrackerLocators.uiSelectorByText(statusFilter))));
+
+            filterButton.click();
+            log.info("Clicked status filter: {}", statusFilter);
+            sleep(1500); // Wait for filtered list to load
+
+            return this;
+        } catch (Exception e) {
+            log.error("Failed to click status filter: {}", statusFilter, e);
+            throw new com.automation.exceptions.ElementNotFoundException(
+                    "Status filter: " + statusFilter,
+                    "UiAutomator",
+                    "Could not find status filter. Exception: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Verifies if a bug with the specified title exists in the current filtered view.
+     * Scrolls down if needed to find the bug.
+     *
+     * @param bugTitle The title of the bug to find
+     * @return true if bug is found, false otherwise
+     */
+    public boolean isBugInCurrentFilter(String bugTitle) {
+        log.info("Checking if bug exists in current filter: {}", bugTitle);
+
+        // Use native context
+        ensureNativeContext();
+
+        try {
+            // Try to find the bug without scrolling first
+            if (!driver.findElements(AppiumBy.androidUIAutomator(
+                    BugTrackerLocators.uiSelectorByTextContains(bugTitle))).isEmpty()) {
+                log.info("Bug found in current filter (no scroll needed): {}", bugTitle);
+                return true;
+            }
+
+            // Scroll down to find the bug
+            for (int i = 0; i < 3; i++) {
+                gestureHelper.scrollDown();
+                sleep(500);
+
+                if (!driver.findElements(AppiumBy.androidUIAutomator(
+                        BugTrackerLocators.uiSelectorByTextContains(bugTitle))).isEmpty()) {
+                    log.info("Bug found in current filter after scrolling: {}", bugTitle);
+                    return true;
+                }
+            }
+
+            log.info("Bug NOT found in current filter: {}", bugTitle);
+            return false;
+
+        } catch (Exception e) {
+            log.error("Error checking for bug in filter: {}", bugTitle, e);
+            return false;
+        }
     }
 
     /**

@@ -285,6 +285,16 @@ public class BugFormPage extends NativePage {
         log.debug("Setting actual result");
         WebElement field = findFieldById(BugTrackerLocators.BUG_ACTUAL_RESULT_FIELD);
         clearAndType(field, actual);
+
+        // Hide keyboard after filling this field so it doesn't cover Detected By field below
+        try {
+            driver.hideKeyboard();
+            sleep(500);
+            log.debug("Keyboard hidden after actual result");
+        } catch (Exception e) {
+            log.debug("Could not hide keyboard: {}", e.getMessage());
+        }
+
         return this;
     }
 
@@ -594,24 +604,42 @@ public class BugFormPage extends NativePage {
      * @param value   The value to select
      */
     private void selectFromDropdown(String fieldId, String value) {
-        // Scroll to the field first
-        scrollToField(fieldId);
+        // Wait a bit for previous action to settle
+        sleep(500);
 
-        WebElement field = findFieldById(fieldId);
+        // Find the field directly - should be visible
+        WebElement field = waitHelper.createWait(10)
+                .until(org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated(
+                        AppiumBy.androidUIAutomator(BugTrackerLocators.uiSelectorById(fieldId))));
+
+        log.debug("Found field: {}", fieldId);
+
         field.click();
-        sleep(800);
+        sleep(1000); // Wait for dropdown to fully open
 
         try {
-            var option = driver.findElement(
-                    AppiumBy.androidUIAutomator(
-                            "new UiSelector().textContains(\"" + value + "\")"));
+            // Wait for the dropdown option to be present and clickable
+            // Use exact text match instead of textContains
+            var option = waitHelper.createWait(10)
+                    .until(org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(
+                            AppiumBy.androidUIAutomator(
+                                    "new UiSelector().text(\"" + value + "\")")));
+
+            log.debug("Found dropdown option: {}", value);
+
+            // Click the option to select it
             option.click();
-            sleep(300);
+            log.debug("Clicked dropdown option: {}", value);
+
+            // Wait for dropdown to close naturally
+            sleep(1500);
+
             log.debug("Selected dropdown value: {}", value);
+
         } catch (Exception e) {
-            log.warn("Could not select dropdown value: {}", value, e);
+            log.warn("Could not select dropdown value: {}, pressing back", value, e);
             navigateBack();
-            sleep(300);
+            sleep(500);
         }
     }
 }

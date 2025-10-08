@@ -181,6 +181,30 @@ public class GestureHelper {
     }
 
     /**
+     * Scrolls right (swipes left to reveal content on the right).
+     */
+    public void scrollRight() {
+        Dimension size = driver.manage().window().getSize();
+        int startX = (int) (size.getWidth() * 0.8);
+        int endX = (int) (size.getWidth() * 0.2);
+        int startY = size.getHeight() / 2;
+
+        swipe(startX, startY, endX, startY, 800);
+    }
+
+    /**
+     * Scrolls left (swipes right to reveal content on the left).
+     */
+    public void scrollLeft() {
+        Dimension size = driver.manage().window().getSize();
+        int startX = (int) (size.getWidth() * 0.2);
+        int endX = (int) (size.getWidth() * 0.8);
+        int startY = size.getHeight() / 2;
+
+        swipe(startX, startY, endX, startY, 800);
+    }
+
+    /**
      * Scrolls to an element using UiScrollable (Android UiAutomator).
      *
      * @param scrollableSelector UiSelector for the scrollable container

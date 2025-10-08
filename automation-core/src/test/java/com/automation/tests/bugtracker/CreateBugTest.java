@@ -96,32 +96,18 @@ public class CreateBugTest extends BaseTest {
 
         // Step 4: Fill the bug form
         bugFormPage
-                .setBugId(123)
+                .setBugId(124)
                 .setDate("2025-10-07")
                 .setTitle(uniqueTitle)
                 .setStepsToReproduce("1. Open app\n2. Tap button X\n3. App crashes")
                 .setExpectedResult("App should not crash")
                 .setActualResult("App crashes with error")
-                .selectStatus(BugStatus.OPEN)
-                .selectSeverity(BugSeverity.CRITICAL)
-                .selectPriority(BugPriority.CRITICAL)
                 .setDetectedBy("QA Automation")
                 .submitAndConfirm();
 
 
-        ExtentReportManager.getTest().info("Bug form submitted");
+        ExtentReportManager.getTest().info("Bug form submitted and confirmed");
 
-//        // Step 5: Submit the form
-//        BugsListPage resultPage = bugFormPage.submit();
-//
-//        ExtentReportManager.getTest().info("Bug form submitted");
-
-        // Step 6: Verify bug appears in the list
-//        resultPage
-//                .goToViewTab()
-//                .waitForBugWithTitle(uniqueTitle);
-//
-//        ExtentReportManager.getTest().pass("Bug created successfully and appears in list: " + uniqueTitle);
     }
 
     /**

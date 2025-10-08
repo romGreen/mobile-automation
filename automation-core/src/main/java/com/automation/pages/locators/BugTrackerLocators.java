@@ -33,7 +33,7 @@ public final class BugTrackerLocators {
     public static final String HOME_CONTAINER_ID = APP_PACKAGE + ":id/container";
     public static final String HOME_ACTION_ID = APP_PACKAGE + ":id/action_home";
 
-    // ===== Bug Form Field IDs (Native) =====
+    // ===== Bug Form Field IDs (Native - Create Form) =====
     public static final String BUG_ID_FIELD = "bugId";
     public static final String BUG_DATE_FIELD = "bugDate";
     public static final String BUG_TITLE_FIELD = "bugTitle";
@@ -47,6 +47,20 @@ public final class BugTrackerLocators {
     public static final String BUG_FIXED_BY_FIELD = "bugFixedBy";
     public static final String BUG_DATE_CLOSED_FIELD = "bugDateClosed";
     public static final String BUG_ATTACH_FILE_BUTTON = "bugFile";
+
+    // ===== Edit Bug Form Field IDs (WebView - Edit Form) =====
+    public static final String EDIT_BUG_DATE_FIELD = "editBugDate";
+    public static final String EDIT_BUG_TITLE_FIELD = "editBugTitle";
+    public static final String EDIT_BUG_STEPS_FIELD = "editBugSteps";
+    public static final String EDIT_BUG_EXPECTED_RESULT_FIELD = "editBugExpectedResult";
+    public static final String EDIT_BUG_ACTUAL_RESULT_FIELD = "editBugActualResult";
+    public static final String EDIT_BUG_STATUS_FIELD = "editBugStatus";
+    public static final String EDIT_BUG_SEVERITY_FIELD = "editBugSeverity";
+    public static final String EDIT_BUG_PRIORITY_FIELD = "editBugPriority";
+    public static final String EDIT_BUG_DETECTED_BY_FIELD = "editBugDetectedBy";
+    public static final String EDIT_BUG_FIXED_BY_FIELD = "editBugFixedBy";
+    public static final String EDIT_BUG_DATE_CLOSED_FIELD = "editBugDateClosed";
+    public static final String EDIT_BUG_FILE_BUTTON = "editBugFile";
 
     // ===== UiAutomator Selectors =====
     public static String uiSelectorById(String resourceId) {
@@ -78,9 +92,12 @@ public final class BugTrackerLocators {
     public static final String WEB_FORM_ID = "bugForm";
     public static final String WEB_VIEW_PAGE_ID = "viewBugsPage";
     public static final String WEB_CREATE_PAGE_ID = "createBugPage";
+    public static final String WEB_EDIT_PAGE_ID = "editBugPage";
+    public static final String WEB_EDIT_FORM_ID = "editBugForm";
     public static final String WEB_HOME_PAGE_ID = "homePage";
     public static final String WEB_SEARCH_INPUT = "searchInput";
     public static final String WEB_BUG_STATUS_FIELD = "bugStatus";
+    public static final String WEB_BUG_LIST_ID = "bugList";
 
     // ===== Common Text Labels =====
     public static final String CREATE_BUG_TEXT = "Create Bug";
@@ -91,6 +108,10 @@ public final class BugTrackerLocators {
     public static final String ADD_BUG_BUTTON_TEXT = "Add Bug";
     public static final String SUBMIT_BUTTON_TEXT = "Submit";
     public static final String SAVE_BUTTON_TEXT = "Save";
+    public static final String SAVE_CHANGES_BUTTON_TEXT = "Save Changes";
+    public static final String CANCEL_EDITING_BUTTON_TEXT = "Cancel Editing";
+    public static final String EDIT_BUTTON_TEXT = "Edit";
+    public static final String DELETE_BUTTON_TEXT = "Delete";
 
     // ===== Bug Status Filter Buttons =====
     public static final String FILTER_ALL_TEXT = "All";
