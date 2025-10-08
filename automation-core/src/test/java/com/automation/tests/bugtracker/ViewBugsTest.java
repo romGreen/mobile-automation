@@ -4,10 +4,8 @@ import com.automation.core.context.MobileContextManager;
 import com.automation.pages.bugtracker.BugsListPage;
 import com.automation.reporting.ExtentReportManager;
 import com.automation.tests.base.BaseTest;
-import com.automation.utils.DataProvider;
 import com.automation.utils.GestureHelper;
 import com.automation.utils.WaitHelper;
-import com.automation.models.Bug;
 import io.appium.java_client.android.AndroidDriver;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,66 +73,52 @@ public class ViewBugsTest extends BaseTest {
     }
 
     /**
-     * Test: Print all bug titles from test data.
+     * Test: Print all bug titles from the app.
      *
-     * This test demonstrates reading bug data from JSON and logging it,
-     * simulating the requirement to "print list of all existing bugs".
+     * This test reads and prints all bug titles from the View Bugs page
+     * in the actual application.
      *
      * Steps:
-     * 1. Load bug data from JSON file
-     * 2. Print/log all bug titles and IDs
-     * 3. Verify data was loaded correctly
+     * 1. Navigate to View Bugs page
+     * 2. Read all bug titles from the list
+     * 3. Print/log all bug titles
      *
-     * Expected Result: All bugs from JSON are loaded and logged
+     * Expected Result: All bugs from the app are read and logged
      */
     @Test
-    @DisplayName("Print All Bugs from Test Data")
-    public void testPrintAllBugs_FromTestData() {
-        ExtentReportManager.getTest().info("Starting test: Print all bugs from test data");
+    @DisplayName("Print All Bugs from App")
+    public void testPrintAllBugs_FromApp() {
+        ExtentReportManager.getTest().info("Starting test: Print all bugs from app");
 
-        // Load all bugs from JSON
-        List<Bug> bugs = DataProvider.loadBugsFromJson("testdata/bugs.json");
+        // Initialize page and navigate to View Bugs
+        BugsListPage bugsListPage = new BugsListPage(driver, waitHelper, gestureHelper, contextManager);
+        bugsListPage.waitUntilLoaded(20000);
 
-        assertThat(bugs)
-                .as("Bug list should not be empty")
-                .isNotEmpty();
+        ExtentReportManager.getTest().info("Navigating to View Bugs page");
 
-        ExtentReportManager.getTest().info("Loaded " + bugs.size() + " bugs from JSON");
+        // Read all bug titles from the app
+        List<String> bugTitles = bugsListPage.getAllBugTitles();
 
-        // Print all bug details
-        System.out.println("\n========== BUG LIST ==========");
-        System.out.println(String.format("Total Bugs: %d", bugs.size()));
-        System.out.println("==============================\n");
+        ExtentReportManager.getTest().info("Found " + bugTitles.size() + " bugs in the app");
 
-        for (int i = 0; i < bugs.size(); i++) {
-            Bug bug = bugs.get(i);
+        // Print all bug titles
+        System.out.println("\n========== BUG LIST FROM APP ==========");
+        System.out.println(String.format("Total Bugs: %d", bugTitles.size()));
+        System.out.println("=======================================\n");
 
-            String bugInfo = String.format(
-                    "Bug #%d:\n" +
-                    "  ID: %d\n" +
-                    "  Title: %s\n" +
-                    "  Status: %s\n" +
-                    "  Severity: %s\n" +
-                    "  Priority: %s\n" +
-                    "  Detected By: %s\n" +
-                    "  ---",
-                    i + 1,
-                    bug.getBugId(),
-                    bug.getTitle(),
-                    bug.getStatus(),
-                    bug.getSeverity(),
-                    bug.getPriority(),
-                    bug.getDetectedBy()
-            );
-
-            System.out.println(bugInfo);
-
-            ExtentReportManager.getTest().info("Bug #" + (i + 1) + ": " + bug.getTitle() +
-                    " (ID: " + bug.getBugId() + ", Status: " + bug.getStatus() + ")");
+        if (bugTitles.isEmpty()) {
+            System.out.println("No bugs found in the application.");
+            ExtentReportManager.getTest().info("No bugs found in the application");
+        } else {
+            for (int i = 0; i < bugTitles.size(); i++) {
+                String title = bugTitles.get(i);
+                System.out.println(String.format("Bug #%d: %s", i + 1, title));
+                ExtentReportManager.getTest().info("Bug #" + (i + 1) + ": " + title);
+            }
         }
 
-        System.out.println("==============================\n");
+        System.out.println("=======================================\n");
 
-        ExtentReportManager.getTest().pass("Successfully printed all " + bugs.size() + " bugs");
+        ExtentReportManager.getTest().pass("Successfully printed all bugs from app");
     }
 }

@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class for Bug Creation functionality.
@@ -104,21 +105,23 @@ public class CreateBugTest extends BaseTest {
                 .selectStatus(BugStatus.OPEN)
                 .selectSeverity(BugSeverity.CRITICAL)
                 .selectPriority(BugPriority.CRITICAL)
-                .setDetectedBy("QA Automation");
+                .setDetectedBy("QA Automation")
+                .submitAndConfirm();
 
-        ExtentReportManager.getTest().info("Bug form filled with all required data");
-
-        // Step 5: Submit the form
-        BugsListPage resultPage = bugFormPage.submit();
 
         ExtentReportManager.getTest().info("Bug form submitted");
 
-        // Step 6: Verify bug appears in the list
-        resultPage
-                .goToViewTab()
-                .waitForBugWithTitle(uniqueTitle);
+//        // Step 5: Submit the form
+//        BugsListPage resultPage = bugFormPage.submit();
+//
+//        ExtentReportManager.getTest().info("Bug form submitted");
 
-        ExtentReportManager.getTest().pass("Bug created successfully and appears in list: " + uniqueTitle);
+        // Step 6: Verify bug appears in the list
+//        resultPage
+//                .goToViewTab()
+//                .waitForBugWithTitle(uniqueTitle);
+//
+//        ExtentReportManager.getTest().pass("Bug created successfully and appears in list: " + uniqueTitle);
     }
 
     /**

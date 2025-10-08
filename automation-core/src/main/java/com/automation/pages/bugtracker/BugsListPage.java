@@ -196,6 +196,67 @@ public class BugsListPage extends NativePage {
     }
 
     /**
+     * Reads all bug titles from the View Bugs list.
+     *
+     * @return List of bug titles visible on the page
+     */
+    public java.util.List<String> getAllBugTitles() {
+        log.info("Reading all bug titles from View Bugs page");
+
+        goToViewTab();
+
+        try {
+            // Wait for bugs container to be present
+            waitHelper.createWait(10)
+                    .until(ExpectedConditions.presenceOfElementLocated(
+                            By.id(BugTrackerLocators.WEB_VIEW_PAGE_ID)));
+
+            // Find all bug title elements in the bug list
+            var bugElements = driver.findElements(
+                    AppiumBy.xpath("//*[@id='" + BugTrackerLocators.WEB_VIEW_PAGE_ID + "']//h3"));
+
+            java.util.List<String> bugTitles = new java.util.ArrayList<>();
+            for (var element : bugElements) {
+                String title = element.getText();
+                if (title != null && !title.trim().isEmpty()) {
+                    bugTitles.add(title);
+                }
+            }
+
+            log.info("Found {} bugs in the list", bugTitles.size());
+            return bugTitles;
+
+        } catch (Exception e) {
+            log.warn("No bugs found or error reading bug list: {}", e.getMessage());
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    /**
+     * Clicks on a bug with the specified title to open it for editing.
+     *
+     * @param bugTitle The title of the bug to click
+     * @return BugFormPage for editing the bug
+     */
+    public BugFormPage clickBugByTitle(String bugTitle) {
+        log.info("Clicking on bug with title: {}", bugTitle);
+
+        goToViewTab();
+
+        // Click on the bug element
+        var bugElement = waitHelper.createWait(10)
+                .until(ExpectedConditions.elementToBeClickable(
+                        AppiumBy.xpath("//*[@id='" + BugTrackerLocators.WEB_VIEW_PAGE_ID + "']" +
+                                "//*[contains(text(), '" + bugTitle + "')]")));
+
+        bugElement.click();
+        sleep(1500);
+
+        log.info("Clicked on bug, form should open");
+        return new BugFormPage(driver, waitHelper, gestureHelper, contextManager);
+    }
+
+    /**
      * Gets available clickable elements for debugging.
      * Used when navigation fails to provide helpful error messages.
      *

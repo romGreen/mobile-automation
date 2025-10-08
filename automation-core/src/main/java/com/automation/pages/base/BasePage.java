@@ -145,19 +145,5 @@ public abstract class BasePage {
         }
     }
 
-    /**
-     * Scrolls to the bottom of the current scrollable view.
-     */
-    protected void scrollToBottom() {
-        gestureHelper.scrollDown();
-        sleep(500);
-    }
 
-    /**
-     * Scrolls to the top of the current scrollable view.
-     */
-    protected void scrollToTop() {
-        gestureHelper.scrollUp();
-        sleep(500);
-    }
 }

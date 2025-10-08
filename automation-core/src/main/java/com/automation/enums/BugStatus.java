@@ -15,15 +15,16 @@ public enum BugStatus {
      */
     OPEN("Open"),
 
-    /**
-     * Bug is currently being worked on
-     */
-    IN_PROGRESS("In Progress"),
+    FIXED("Fixed"),
 
-    /**
-     * Bug has been resolved and closed
-     */
-    CLOSED("Closed");
+    CLOSED("Closed"),
+
+    NOT_A_BUG("Not a bug"),
+
+    NOT_REPRODUCED("Not reproduced");
+
+
+
 
     private final String displayName;
 

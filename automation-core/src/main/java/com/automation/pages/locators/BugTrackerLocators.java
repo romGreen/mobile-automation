@@ -77,25 +77,31 @@ public final class BugTrackerLocators {
     // ===== WebView Element IDs =====
     public static final String WEB_FORM_ID = "bugForm";
     public static final String WEB_VIEW_PAGE_ID = "viewBugsPage";
-    public static final String WEB_BUG_ID = "bugId";
-    public static final String WEB_BUG_DATE = "bugDate";
-    public static final String WEB_BUG_TITLE = "bugTitle";
-    public static final String WEB_BUG_STEPS = "bugSteps";
-    public static final String WEB_EXPECTED_RESULT = "bugExpectedResult";
-    public static final String WEB_ACTUAL_RESULT = "bugActualResult";
+    public static final String WEB_CREATE_PAGE_ID = "createBugPage";
+    public static final String WEB_HOME_PAGE_ID = "homePage";
+    public static final String WEB_SEARCH_INPUT = "searchInput";
+    public static final String WEB_BUG_STATUS_FIELD = "bugStatus";
 
     // ===== Common Text Labels =====
     public static final String CREATE_BUG_TEXT = "Create Bug";
     public static final String VIEW_BUGS_TEXT = "View Bugs";
+    public static final String HOME_TEXT = "Home";
     public static final String BUG_TRACKER_TITLE = "Bug Tracker Tool";
     public static final String CREATE_FORM_TITLE = "Create a Bug";
     public static final String ADD_BUG_BUTTON_TEXT = "Add Bug";
     public static final String SUBMIT_BUTTON_TEXT = "Submit";
     public static final String SAVE_BUTTON_TEXT = "Save";
 
+    // ===== Bug Status Filter Buttons =====
+    public static final String FILTER_ALL_TEXT = "All";
+    public static final String FILTER_OPEN_TEXT = "Open";
+    public static final String FILTER_FIXED_TEXT = "Fixed";
+    public static final String FILTER_CLOSED_TEXT = "Closed";
+    public static final String FILTER_NOT_A_BUG_TEXT = "Not a Bug";
+
     // ===== Date Picker Locators =====
-    public static final String DATE_PICKER_OK_BUTTON_HEBREW = "הגדרה"; // "Set" in Hebrew
-    public static final String DATE_PICKER_CANCEL_BUTTON_HEBREW = "ביטול"; // "Cancel" in Hebrew
+    public static final String DATE_PICKER_OK_BUTTON_HEBREW = "הגדרה";
+    public static final String DATE_PICKER_CANCEL_BUTTON_HEBREW = "ביטול";
 
     // ===== Accessibility IDs =====
     public static final String CREATE_BUG_ACCESSIBILITY_ID = "Create Bug";

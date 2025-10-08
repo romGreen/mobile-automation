@@ -11,10 +11,15 @@ import com.automation.utils.GestureHelper;
 import com.automation.utils.WaitHelper;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
+
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.time.Duration;
 
 /**
  * Page Object for the Bug Form (Create/Edit Bug screen).
@@ -231,8 +236,42 @@ public class BugFormPage extends NativePage {
      */
     public BugFormPage setExpectedResult(String expected) {
         log.debug("Setting expected result");
+
+        // Scroll ONCE to make both Expected Result and Actual Result visible
+        scrollToField(BugTrackerLocators.BUG_EXPECTED_RESULT_FIELD);
+        sleep(1000); // Wait for scroll to settle
+
         WebElement field = findFieldById(BugTrackerLocators.BUG_EXPECTED_RESULT_FIELD);
-        clearAndType(field, expected);
+
+        // Try multiple clicks to ensure focus
+        field.click();
+        sleep(500);
+        field.click();
+        sleep(1000); // Wait for keyboard
+
+        // Try to clear any existing text
+        try {
+            field.clear();
+            sleep(300);
+        } catch (Exception e) {
+            log.debug("Could not clear field: {}", e.getMessage());
+        }
+
+        // Type using Actions
+        org.openqa.selenium.interactions.Actions actions = new org.openqa.selenium.interactions.Actions(driver);
+        actions.sendKeys(expected).perform();
+        sleep(500);
+
+        log.debug("Expected result filled: {}", expected);
+
+        // Hide keyboard
+        try {
+            driver.hideKeyboard();
+            sleep(300);
+        } catch (Exception e) {
+            log.debug("Could not hide keyboard: {}", e.getMessage());
+        }
+
         return this;
     }
 
@@ -293,10 +332,6 @@ public class BugFormPage extends NativePage {
      */
     public BugFormPage setDetectedBy(String detectedBy) {
         log.debug("Setting detected by: {}", detectedBy);
-
-        // Scroll to ensure field is visible
-        scrollToField(BugTrackerLocators.BUG_DETECTED_BY_FIELD);
-
         WebElement field = findFieldById(BugTrackerLocators.BUG_DETECTED_BY_FIELD);
         clearAndType(field, detectedBy);
         return this;
@@ -382,36 +417,128 @@ public class BugFormPage extends NativePage {
     public BugsListPage submit() {
         log.info("Submitting bug form");
 
-        // Scroll to bottom where submit button typically is
+        // Always ensure native context
+        ensureNativeContext();
+
+        // Best effort: hide keyboard so the button isn't covered
+        try { driver.hideKeyboard(); sleep(300); } catch (Exception ignored) {}
+
+        // Scroll the button into view using flexible selectors
+        String addBugText = BugTrackerLocators.ADD_BUG_BUTTON_TEXT; // "Add Bug"
+        String uiText = BugTrackerLocators.uiSelectorByText(addBugText);
+        String uiTextContains = BugTrackerLocators.uiSelectorByTextContains("Add"); // more tolerant
+
         try {
-            driver.findElement(
-                    AppiumBy.androidUIAutomator(
-                            BugTrackerLocators.scrollIntoView(
-                                    BugTrackerLocators.uiSelectorByText(BugTrackerLocators.ADD_BUG_BUTTON_TEXT))));
-            sleep(500);
-        } catch (Exception ignored) {
-        }
-
-        // Try multiple button text variations
-        String[] buttonTexts = {"Add Bug", "Submit", "Save", "Create", "שמור", "הוסף"};
-
-        for (String buttonText : buttonTexts) {
+            // Try to bring it into view by exact text
+            driver.findElement(AppiumBy.androidUIAutomator(
+                    BugTrackerLocators.scrollIntoView(uiText)));
+        } catch (Exception e1) {
+            log.debug("Exact text scroll failed, trying textContains: {}", e1.getMessage());
             try {
-                var button = driver.findElement(
-                        AppiumBy.androidUIAutomator(
-                                "new UiSelector().textMatches(\"(?i)" + buttonText + "\")"));
-                button.click();
-                log.info("Clicked submit button: {}", buttonText);
-                sleep(1000);
-
-                return new BugsListPage(driver, waitHelper, gestureHelper, contextManager);
-            } catch (Exception ignored) {
+                driver.findElement(AppiumBy.androidUIAutomator(
+                        BugTrackerLocators.scrollIntoView(uiTextContains)));
+            } catch (Exception e2) {
+                log.warn("scrollIntoView text/textContains failed: {}", e2.getMessage());
             }
         }
 
-        throw new IllegalStateException(
-                "Could not find submit button. Tried: " + String.join(", ", buttonTexts));
+        // Prefer a direct element->click over coordinate taps
+        WebElement addBtn = null;
+        try {
+            // 1) Try by accessibility id (many builds expose it)
+            addBtn = waitHelper.createWait(6).until(
+                    org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated(
+                            AppiumBy.accessibilityId(addBugText)));
+        } catch (Exception ignored) {}
+
+        if (addBtn == null) {
+            try {
+                // 2) Try by exact text
+                addBtn = waitHelper.createWait(6).until(
+                        org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated(
+                                AppiumBy.androidUIAutomator(uiText)));
+            } catch (Exception ignored) {}
+        }
+        if (addBtn == null) {
+            try {
+                // 3) Try by contains text
+                addBtn = waitHelper.createWait(6).until(
+                        org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated(
+                                AppiumBy.androidUIAutomator(uiTextContains)));
+            } catch (Exception ignored) {}
+        }
+        if (addBtn == null) {
+            throw new IllegalStateException("Could not locate 'Add Bug' button via a11y/text.");
+        }
+
+        // Ensure it’s clickable & enabled
+        waitHelper.createWait(8).until(
+                org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable(addBtn));
+
+        if (!addBtn.isEnabled()) {
+            // Helpful log when the form validation keeps it disabled
+            log.error("'Add Bug' button is disabled. Check required fields (Severity, Priority, Expected, etc.).");
+            throw new IllegalStateException("'Add Bug' is disabled – required fields may be missing.");
+        }
+
+        addBtn.click();
+        log.info("Clicked 'Add Bug'");
+
+        // Small settle wait (submission animation)
+        sleep(1500);
+
+        return new BugsListPage(driver, waitHelper, gestureHelper, contextManager);
     }
+
+    // --- Locators ---
+    private static final By SUCCESS_MSG_ID =
+            AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"statusMessage\")");
+    private static final By SUCCESS_MSG_XPATH =
+            By.xpath("//android.widget.TextView[@resource-id='statusMessage' and contains(@text,'Bug created successfully')]");
+
+    // Hide keyboard helper (if you don't have one)
+    private void safeHideKeyboard() {
+        try { driver.hideKeyboard(); Thread.sleep(300); } catch (Exception ignored) {}
+    }
+
+    public boolean waitForSuccessMessage(int timeoutSeconds) {
+        ensureNativeContext();
+        safeHideKeyboard();
+        try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+
+        try {
+            // Try by resource-id
+            waitHelper.createWait(timeoutSeconds)
+                    .until(d -> {
+                        try {
+                            WebElement e = d.findElement(SUCCESS_MSG_ID);
+                            return e.isDisplayed() && !e.getText().trim().isEmpty();
+                        } catch (Exception ignore) { return false; }
+                    });
+        } catch (Exception e) {
+            // Fallback: XPath
+            waitHelper.createWait(timeoutSeconds)
+                    .until(org.openqa.selenium.support.ui.ExpectedConditions
+                            .presenceOfElementLocated(SUCCESS_MSG_XPATH));
+        }
+
+        String txt;
+        try {
+            txt = driver.findElement(SUCCESS_MSG_ID).getText();
+        } catch (Exception ignore) {
+            txt = driver.findElement(SUCCESS_MSG_XPATH).getText();
+        }
+        log.info("Status message after submit: {}", txt);
+        return txt != null && txt.toLowerCase().contains("bug created successfully");
+    }
+
+    /** Convenience: click Add Bug, then wait for success */
+    public boolean submitAndConfirm() {
+        submit();                               // your existing submit() that clicks the button
+        return waitForSuccessMessage(8);
+    }
+
+
 
     // ===== Private Helper Methods =====
 
@@ -449,32 +576,15 @@ public class BugFormPage extends NativePage {
      * @param text  The text to type
      */
     private void clearAndType(WebElement field, String text) {
-        // For Android EditText, use setValue which is more reliable than sendKeys
-        try {
-            field.click();
-            sleep(200);
+        // For WebView EditText, click and use Actions to type
+        field.click();
+        sleep(500);
 
-            // Use setValue() which internally uses ACTION_SET_TEXT
-            ((io.appium.java_client.android.AndroidElement) field).setValue(text);
-            sleep(200);
-            log.debug("Successfully set value using setValue()");
-
-        } catch (ClassCastException e) {
-            log.debug("Element is not AndroidElement, using sendKeys");
-
-            // Fallback to sendKeys
-            field.click();
-            sleep(300);
-
-            try {
-                field.clear();
-            } catch (Exception ex) {
-                log.debug("Clear failed: {}", ex.getMessage());
-            }
-
-            field.sendKeys(text);
-            sleep(200);
-        }
+        // Use Actions class to send keys character by character
+        org.openqa.selenium.interactions.Actions actions = new org.openqa.selenium.interactions.Actions(driver);
+        actions.sendKeys(text).perform();
+        sleep(300);
+        log.debug("Set value using Actions: {}", text);
     }
 
     /**
@@ -484,6 +594,9 @@ public class BugFormPage extends NativePage {
      * @param value   The value to select
      */
     private void selectFromDropdown(String fieldId, String value) {
+        // Scroll to the field first
+        scrollToField(fieldId);
+
         WebElement field = findFieldById(fieldId);
         field.click();
         sleep(800);
