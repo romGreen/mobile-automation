@@ -17,17 +17,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  * Abstract base class for all test classes.
  *
  * This class provides:
- * - Spring dependency injection setup
- * - Extent Reports integration
- * - Driver lifecycle management
- * - Common test setup/teardown
+ * - Spring DI setup
+ * - Reports integration
+ * - Driver management
+ * - Common test setup and teardown
+ * - Shared dependencies (driver, helpers) to avoid duplications
  *
- * Demonstrates OOP principles:
- * - Inheritance: All tests extend this class
- * - Code reuse: Common test setup in one place
- * - Dependency Injection: Spring manages dependencies
- *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
 @ExtendWith({SpringExtension.class, TestListener.class})
@@ -36,6 +32,14 @@ public abstract class BaseTest {
 
     @Autowired
     protected DriverManager driverManager;
+    @Autowired
+    protected com.automation.utils.WaitHelper waitHelper;
+    @Autowired
+    protected com.automation.utils.GestureHelper gestureHelper;
+    @Autowired
+    protected io.appium.java_client.android.AndroidDriver driver;
+    @Autowired
+    protected com.automation.core.config.ConfigReader configReader;
 
     /**
      * One-time setup before all tests in the class.
@@ -71,5 +75,14 @@ public abstract class BaseTest {
     @AfterAll
     public static void globalTeardown() {
         ExtentReportManager.flush();
+    }
+
+
+    /**
+     * Gets the NavigationBar component for navigation between screens.
+     * @return NavigationBar instance for screen navigation
+     */
+    protected com.automation.pages.components.NavigationBar getNavigationBar() {
+        return new com.automation.pages.components.NavigationBar(driver, waitHelper, gestureHelper, configReader);
     }
 }

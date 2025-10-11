@@ -1,40 +1,21 @@
 package com.automation.enums;
 
 /**
- * Enumeration representing the priority levels for bug resolution.
- *
- * Priority indicates the urgency of fixing a bug from a business perspective.
- * Unlike severity (technical impact), priority reflects business or user impact.
- *
- * @author Automation Team
+ * Enumeration representing the priority levels for bugs.
+ * @author Rom
  * @version 1.0
  */
 public enum BugPriority {
-    /**
-     * Must be fixed immediately, blocking release
-     */
     CRITICAL("Critical"),
-
-    /**
-     * Should be fixed soon, high business impact
-     */
     HIGH("High"),
-
-    /**
-     * Normal priority, fix in regular workflow
-     */
     MEDIUM("Medium"),
-
-    /**
-     * Low priority, can be deferred
-     */
-    LOW("Low");
+    LOW("Low"),
+    DEFERRED("Deferred");
 
     private final String displayName;
 
     /**
      * Constructor for BugPriority enum.
-     *
      * @param displayName The text that appears in the UI for this priority
      */
     BugPriority(String displayName) {
@@ -43,7 +24,6 @@ public enum BugPriority {
 
     /**
      * Gets the display name for this priority as shown in the application UI.
-     *
      * @return The display name string
      */
     public String getDisplayName() {
@@ -52,8 +32,6 @@ public enum BugPriority {
 
     /**
      * Finds a BugPriority by its display name.
-     * This method is useful when parsing data from UI or external sources.
-     *
      * @param displayName The display name to search for
      * @return The matching BugPriority, or null if not found
      */

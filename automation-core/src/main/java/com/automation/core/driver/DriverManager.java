@@ -3,17 +3,10 @@ package com.automation.core.driver;
 import io.appium.java_client.android.AndroidDriver;
 
 /**
- * Interface for managing mobile driver lifecycle.
- *
+ * Interface for managing mobile driver.
  * This interface defines the contract for driver management operations,
- * allowing different implementations for different platforms or configurations.
- *
- * Demonstrates OOP principles:
- * - Abstraction: Hides driver management complexity
- * - Interface Segregation: Focused, minimal interface
- * - Dependency Inversion: Tests depend on this interface, not concrete implementation
- *
- * @author Automation Team
+ * allowing different implementations for different platforms/configurations.
+ * @author Rom
  * @version 1.0
  */
 public interface DriverManager {

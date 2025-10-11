@@ -16,13 +16,7 @@ import java.time.format.DateTimeFormatter;
  *
  * This class provides centralized management of Extent Reports,
  * handling report initialization, test creation, and finalization.
- *
- * Demonstrates OOP principles:
- * - Singleton pattern: Single report instance per test run
- * - Encapsulation: Hides report complexity
- * - Thread-safe: Uses ThreadLocal for parallel test execution
- *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
 public class ExtentReportManager {

@@ -16,17 +16,11 @@ import java.time.Duration;
 import java.util.Collections;
 
 /**
- * Utility class providing mobile gesture operations (tap, swipe, scroll, etc.).
- *
+ * Utility class providing mobile gesture operations (tap, swipe, scroll...).
  * This class encapsulates W3C Actions for mobile gestures, providing
- * a clean API for common touch interactions.
+ * clean API for touch interactions.
  *
- * Demonstrates OOP principles:
- * - Single Responsibility: Handles only gesture operations
- * - Encapsulation: Hides W3C Actions complexity
- * - Reusability: Used across page objects for gestures
- *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
 @Component
@@ -39,7 +33,7 @@ public class GestureHelper {
     private final AndroidDriver driver;
 
     /**
-     * Constructs a GestureHelper with the given driver (injected by Spring).
+     * Constructs a GestureHelper with the given driver.
      *
      * @param driver The AndroidDriver instance
      */
@@ -85,56 +79,7 @@ public class GestureHelper {
     }
 
     /**
-     * Performs a long press at specific coordinates.
-     *
-     * @param x            X coordinate
-     * @param y            Y coordinate
-     * @param durationMs   Duration of the press in milliseconds
-     */
-    public void longPressAt(int x, int y, long durationMs) {
-        log.debug("Long pressing at ({}, {}) for {} ms", x, y, durationMs);
-
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, FINGER);
-        Sequence longPress = new Sequence(finger, 1);
-
-        longPress.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y));
-        longPress.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-        longPress.addAction(new org.openqa.selenium.interactions.Pause(finger, Duration.ofMillis(durationMs)));
-        longPress.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
-        driver.perform(Collections.singletonList(longPress));
-    }
-
-    /**
-     * Performs a long press on an element.
-     *
-     * @param element    The element to long press
-     * @param durationMs Duration of the press in milliseconds
-     */
-    public void longPressElement(WebElement element, long durationMs) {
-        Point location = element.getLocation();
-        Dimension size = element.getSize();
-
-        int centerX = location.getX() + (size.getWidth() / 2);
-        int centerY = location.getY() + (size.getHeight() / 2);
-
-        longPressAt(centerX, centerY, durationMs);
-    }
-
-    /**
-     * Performs a swipe gesture from one point to another.
-     *
-     * @param startX Start X coordinate
-     * @param startY Start Y coordinate
-     * @param endX   End X coordinate
-     * @param endY   End Y coordinate
-     */
-    public void swipe(int startX, int startY, int endX, int endY) {
-        swipe(startX, startY, endX, endY, 800);
-    }
-
-    /**
-     * Performs a swipe gesture with custom duration.
+     * Performs a swipe with custom duration.
      *
      * @param startX     Start X coordinate
      * @param startY     Start Y coordinate
@@ -156,9 +101,6 @@ public class GestureHelper {
         driver.perform(Collections.singletonList(swipe));
     }
 
-    /**
-     * Scrolls down the screen.
-     */
     public void scrollDown() {
         Dimension size = driver.manage().window().getSize();
         int startX = size.getWidth() / 2;
@@ -168,9 +110,6 @@ public class GestureHelper {
         swipe(startX, startY, startX, endY, 800);
     }
 
-    /**
-     * Scrolls up the screen.
-     */
     public void scrollUp() {
         Dimension size = driver.manage().window().getSize();
         int startX = size.getWidth() / 2;
@@ -180,9 +119,6 @@ public class GestureHelper {
         swipe(startX, startY, startX, endY, 800);
     }
 
-    /**
-     * Scrolls right (swipes left to reveal content on the right).
-     */
     public void scrollRight() {
         Dimension size = driver.manage().window().getSize();
         int startX = (int) (size.getWidth() * 0.8);
@@ -192,9 +128,6 @@ public class GestureHelper {
         swipe(startX, startY, endX, startY, 800);
     }
 
-    /**
-     * Scrolls left (swipes right to reveal content on the left).
-     */
     public void scrollLeft() {
         Dimension size = driver.manage().window().getSize();
         int startX = (int) (size.getWidth() * 0.2);
@@ -205,42 +138,22 @@ public class GestureHelper {
     }
 
     /**
-     * Scrolls to an element using UiScrollable (Android UiAutomator).
-     *
-     * @param scrollableSelector UiSelector for the scrollable container
-     * @param targetSelector     UiSelector for the target element
+     * Scrolls to a specific element.
+     * @param resourceId The resource ID of the element to scroll to
      */
-    public void scrollToElement(String scrollableSelector, String targetSelector) {
-        log.debug("Scrolling to element: {}", targetSelector);
-        String uiAutomatorText = String.format(
-                "new UiScrollable(%s).scrollIntoView(%s)",
-                scrollableSelector,
-                targetSelector
-        );
-        driver.findElement(io.appium.java_client.AppiumBy.androidUIAutomator(uiAutomatorText));
-    }
-
-    /**
-     * Swipes left on the screen.
-     */
-    public void swipeLeft() {
-        Dimension size = driver.manage().window().getSize();
-        int startX = (int) (size.getWidth() * 0.8);
-        int endX = (int) (size.getWidth() * 0.2);
-        int y = size.getHeight() / 2;
-
-        swipe(startX, y, endX, y);
-    }
-
-    /**
-     * Swipes right on the screen.
-     */
-    public void swipeRight() {
-        Dimension size = driver.manage().window().getSize();
-        int startX = (int) (size.getWidth() * 0.2);
-        int endX = (int) (size.getWidth() * 0.8);
-        int y = size.getHeight() / 2;
-
-        swipe(startX, y, endX, y);
+    public void scrollToElement(String resourceId) {
+        log.debug("Scrolling to element with resource ID: {}", resourceId);
+        try {
+            String uiSelector = String.format("new UiSelector().resourceId(\"%s\")", resourceId);
+            String scrollableSelector = "new UiSelector().scrollable(true)";
+            String uiAutomatorCommand = String.format(
+                    "new UiScrollable(%s).scrollIntoView(%s)",
+                    scrollableSelector,
+                    uiSelector
+            );
+            driver.findElement(io.appium.java_client.AppiumBy.androidUIAutomator(uiAutomatorCommand));
+        } catch (Exception e) {
+            log.debug("Could not scroll to element: {}", resourceId, e);
+        }
     }
 }

@@ -5,25 +5,9 @@ import com.automation.enums.BugSeverity;
 import com.automation.enums.BugStatus;
 
 /**
- * Data Transfer Object (DTO) representing a Bug entity in the bug tracking system.
+ * Bug entity in the bug tracking app.
  *
- * This class encapsulates all bug-related data and follows the JavaBean convention.
- * It demonstrates the OOP principles of:
- * - Encapsulation: Private fields with public getters/setters
- * - Data abstraction: Separates data representation from business logic
- *
- * Usage example:
- * <pre>
- * Bug bug = new Bug.Builder()
- *     .bugId(101)
- *     .title("Login page crashes")
- *     .status(BugStatus.OPEN)
- *     .severity(BugSeverity.CRITICAL)
- *     .priority(BugPriority.HIGH)
- *     .build();
- * </pre>
- *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
 public class Bug {
@@ -42,8 +26,7 @@ public class Bug {
     private String attachedFile;
 
     /**
-     * Default constructor for Bug.
-     * Creates an empty Bug instance.
+     * Constructor creates an empty Bug instance
      */
     public Bug() {
     }
@@ -69,111 +52,41 @@ public class Bug {
         this.attachedFile = builder.attachedFile;
     }
 
-    // Getters and Setters
-
-    public Integer getBugId() {
-        return bugId;
-    }
-
-    public void setBugId(Integer bugId) {
-        this.bugId = bugId;
-    }
-
+    // Getters
+    public Integer getBugId() {return bugId;}
     public String getDate() {
         return date;
     }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
     public String getTitle() {
         return title;
     }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getStepsToReproduce() {
         return stepsToReproduce;
     }
-
-    public void setStepsToReproduce(String stepsToReproduce) {
-        this.stepsToReproduce = stepsToReproduce;
-    }
-
     public String getExpectedResult() {
         return expectedResult;
     }
+    public String getActualResult() { return actualResult;}
 
-    public void setExpectedResult(String expectedResult) {
-        this.expectedResult = expectedResult;
-    }
+    public BugStatus getStatus() {return status;}
 
-    public String getActualResult() {
-        return actualResult;
-    }
-
-    public void setActualResult(String actualResult) {
-        this.actualResult = actualResult;
-    }
-
-    public BugStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(BugStatus status) {
-        this.status = status;
-    }
-
+    public void setStatus(BugStatus status) {this.status = status;}
     public BugSeverity getSeverity() {
         return severity;
     }
-
-    public void setSeverity(BugSeverity severity) {
-        this.severity = severity;
-    }
-
     public BugPriority getPriority() {
         return priority;
     }
-
-    public void setPriority(BugPriority priority) {
-        this.priority = priority;
-    }
-
     public String getDetectedBy() {
         return detectedBy;
     }
-
-    public void setDetectedBy(String detectedBy) {
-        this.detectedBy = detectedBy;
-    }
-
     public String getFixedBy() {
         return fixedBy;
     }
-
-    public void setFixedBy(String fixedBy) {
-        this.fixedBy = fixedBy;
-    }
-
     public String getDateClosed() {
         return dateClosed;
     }
-
-    public void setDateClosed(String dateClosed) {
-        this.dateClosed = dateClosed;
-    }
-
-    public String getAttachedFile() {
-        return attachedFile;
-    }
-
-    public void setAttachedFile(String attachedFile) {
-        this.attachedFile = attachedFile;
-    }
+    public String getAttachedFile() { return attachedFile;}
 
     @Override
     public String toString() {
@@ -188,22 +101,7 @@ public class Bug {
     }
 
     /**
-     * Builder class for constructing Bug instances using the Builder pattern.
-     *
-     * The Builder pattern provides:
-     * - Clear, readable object construction
-     * - Optional parameters
-     * - Immutability (once built)
-     * - Validation before construction
-     *
-     * Example usage:
-     * <pre>
-     * Bug bug = new Bug.Builder()
-     *     .bugId(101)
-     *     .title("Login fails")
-     *     .severity(BugSeverity.MAJOR)
-     *     .build();
-     * </pre>
+     * Builder class for constructing Bug instances using the Builder.
      */
     public static class Builder {
         private Integer bugId;

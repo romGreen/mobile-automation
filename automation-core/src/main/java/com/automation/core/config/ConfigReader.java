@@ -7,14 +7,8 @@ import java.util.Map;
  *
  * This interface demonstrates the OOP principle of abstraction by defining
  * a contract for configuration reading without exposing implementation details.
- * Different implementations can read from JSON, YAML, properties files, etc.
  *
- * Benefits of this approach:
- * - Easy to swap implementations (JSON -> YAML)
- * - Easy to mock for testing
- * - Follows Dependency Inversion Principle (depend on abstraction, not concrete class)
- *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
 public interface ConfigReader {
@@ -38,41 +32,25 @@ public interface ConfigReader {
     /**
      * Retrieves a configuration value as a String with a default value.
      *
-     * @param key          The configuration key
+     * @param key The configuration key
      * @param defaultValue The default value if key is not found
      * @return The value as a String, or defaultValue if not found
      */
     String getString(String key, String defaultValue);
 
     /**
-     * Retrieves a configuration value as a boolean.
-     *
-     * @param key The configuration key
-     * @return The value as a boolean
-     */
-    boolean getBoolean(String key);
-
-    /**
      * Retrieves a configuration value as a boolean with a default value.
      *
-     * @param key          The configuration key
+     * @param key The configuration key
      * @param defaultValue The default value if key is not found
      * @return The value as a boolean, or defaultValue if not found
      */
     boolean getBoolean(String key, boolean defaultValue);
 
     /**
-     * Retrieves a configuration value as an integer.
-     *
-     * @param key The configuration key
-     * @return The value as an integer
-     */
-    int getInt(String key);
-
-    /**
      * Retrieves a configuration value as an integer with a default value.
      *
-     * @param key          The configuration key
+     * @param key The configuration key
      * @param defaultValue The default value if key is not found
      * @return The value as an integer, or defaultValue if not found
      */

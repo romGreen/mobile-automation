@@ -11,18 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 /**
- * Spring Configuration class for the automation framework.
- *
- * This class defines Spring beans and their dependencies, enabling
- * dependency injection throughout the framework.
- *
- * Demonstrates OOP principles:
- * - Dependency Injection: Objects don't create their dependencies
- * - Inversion of Control: Spring container manages object lifecycle
- * - Single Responsibility: Configuration in one place
- * - Loose Coupling: Components depend on interfaces, not implementations
- *
- * @author Automation Team
+ * Spring Configuration class for the framework.
  * @version 1.0
  */
 @Configuration
@@ -36,9 +25,7 @@ public class AutomationConfig {
 
     /**
      * Creates a ConfigReader bean.
-     *
-     * This bean is used throughout the framework to read configuration values.
-     * Singleton scope ensures only one instance exists.
+     * This bean is used in the framework to read configuration values.
      *
      * @return ConfigReader instance
      */
@@ -49,10 +36,7 @@ public class AutomationConfig {
 
     /**
      * Creates a DriverManager bean.
-     *
-     * The DriverManager handles driver lifecycle and is injected into
-     * components that need driver access.
-     *
+     * The driver lifecycle (start/stop) is managed by BaseTest.
      * @param configReader The config reader (injected by Spring)
      * @return DriverManager instance
      */
@@ -62,10 +46,8 @@ public class AutomationConfig {
     }
 
     /**
-     * Creates an AndroidDriver bean with prototype scope.
-     *
-     * Prototype scope means a new instance is created each time it's requested.
-     * The driver is started automatically when this bean is created.
+     * Creates an AndroidDriver bean.
+     * Prototype scope ensures each injection gets a fresh instance.
      *
      * @param driverManager The driver manager (injected by Spring)
      * @return AndroidDriver instance

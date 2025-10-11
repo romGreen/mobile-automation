@@ -1,35 +1,32 @@
 [
   {
     "bugId": 101,
+    "date": "25.09.2025",
     "title": "Login page crashes on submit",
     "stepsToReproduce": "1. Open app\n2. Navigate to login\n3. Enter credentials\n4. Tap submit",
     "expectedResult": "User should be logged in successfully",
     "actualResult": "App crashes with NullPointerException",
     "status": "Open",
-    "severity": "Critical",
+    "severity": "Major",
     "priority": "Critical",
-    "detectedBy": "QA Automation"
+    "detectedBy": "QA",
+    "fixedBy": "Bob",
+    "dateClosed": "26.09.2025",
+    "attachedFile": "sample.jpg"
   },
   {
     "bugId": 102,
-    "title": "Search results show incorrect data",
-    "stepsToReproduce": "1. Open app\n2. Use search feature\n3. Enter 'test'\n4. View results",
-    "expectedResult": "Results should match search query",
-    "actualResult": "Random results are displayed",
-    "status": "Open",
+    "date": "20.06.2025",
+    "title": "Cant upload an image file",
+    "stepsToReproduce": "1. Open app\n2. fill the bug fields\n3. attach image in attach file field\n4. Click Add Bug",
+    "expectedResult": "Bug added with image attachment",
+    "actualResult": "Bug not added",
+    "status": "Fixed",
     "severity": "Major",
     "priority": "High",
-    "detectedBy": "QA Team"
-  },
-  {
-    "bugId": 103,
-    "title": "Button alignment issue on small screens",
-    "stepsToReproduce": "1. Open app on device with small screen\n2. Navigate to home screen\n3. Observe button placement",
-    "expectedResult": "Buttons should be properly aligned",
-    "actualResult": "Buttons overlap each other",
-    "status": "Open",
-    "severity": "Minor",
-    "priority": "Low",
-    "detectedBy": "QA Engineer"
+    "detectedBy": "QA",
+    "fixedBy": "Alice",
+    "dateClosed": "25.06.2025",
+    "attachedFile": "sample.jpg"
   }
 ]

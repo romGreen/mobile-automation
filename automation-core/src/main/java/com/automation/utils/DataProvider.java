@@ -20,12 +20,7 @@ import java.util.Map;
  * This class demonstrates the data-driven testing approach, where test data
  * is separated from test logic, making tests more maintainable and scalable.
  *
- * Demonstrates OOP principles:
- * - Single Responsibility: Handles only test data loading
- * - Encapsulation: Hides data parsing complexity
- * - Reusability: Can be used across all tests
- *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
 public class DataProvider {
@@ -41,22 +36,6 @@ public class DataProvider {
 
     /**
      * Loads bug test data from a JSON file.
-     *
-     * The JSON file should contain an array of bug objects with fields
-     * matching the Bug model properties.
-     *
-     * Example JSON format:
-     * <pre>
-     * [
-     *   {
-     *     "bugId": 101,
-     *     "title": "Login fails",
-     *     "status": "Open",
-     *     "severity": "Critical",
-     *     ...
-     *   }
-     * ]
-     * </pre>
      *
      * @param jsonFileName Name of the JSON file in classpath (e.g., "testdata/bugs.json")
      * @return List of Bug objects
@@ -75,8 +54,7 @@ public class DataProvider {
 
             // Read JSON as list of maps
             List<Map<String, Object>> bugMaps = objectMapper.readValue(
-                    inputStream,
-                    new TypeReference<List<Map<String, Object>>>() {});
+                    inputStream, new TypeReference<List<Map<String, Object>>>() {});
 
             // Convert maps to Bug objects
             List<Bug> bugs = new ArrayList<>();
@@ -98,8 +76,8 @@ public class DataProvider {
      * Loads a single bug from JSON file by index.
      *
      * @param jsonFileName Name of the JSON file
-     * @param index        Index of the bug to load (0-based)
-     * @return The Bug object at the specified index
+     * @param index of the bug to load
+     * @return The Bug object that fit the index
      */
     public static Bug loadBugFromJson(String jsonFileName, int index) {
         List<Bug> bugs = loadBugsFromJson(jsonFileName);
@@ -115,8 +93,6 @@ public class DataProvider {
 
     /**
      * Converts a Map to a Bug object.
-     *
-     * This method handles the conversion of string values to appropriate enums.
      *
      * @param bugMap Map containing bug data
      * @return Bug object
@@ -182,6 +158,10 @@ public class DataProvider {
 
         if (bugMap.containsKey("dateClosed")) {
             builder.dateClosed(getString(bugMap, "dateClosed"));
+        }
+
+        if (bugMap.containsKey("attachedFile")) {
+            builder.attachedFile(getString(bugMap, "attachedFile"));
         }
 
         return builder.build();

@@ -2,33 +2,16 @@ package com.automation.enums;
 
 /**
  * Enumeration representing the severity levels of a bug.
- *
- * Severity indicates the impact of the bug on the system's functionality.
- * This helps prioritize bug fixes based on their technical impact.
- *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
 public enum BugSeverity {
-    /**
-     * System crash, data loss, or complete feature failure
-     */
     CRITICAL("Critical"),
-
-    /**
-     * Major functionality is severely impaired
-     */
     MAJOR("Major"),
-
-    /**
-     * Feature works but with significant issues
-     */
     MINOR("Minor"),
+    TRIVIAL("Trivial"),
+    ENHANCEMENT("Enhancement");
 
-    /**
-     * Cosmetic issues or minor inconveniences
-     */
-    TRIVIAL("Trivial");
 
     private final String displayName;
 
@@ -42,8 +25,7 @@ public enum BugSeverity {
     }
 
     /**
-     * Gets the display name for this severity as shown in the application UI.
-     *
+     * Gets the display name for this severity as shown in the UI.
      * @return The display name string
      */
     public String getDisplayName() {
@@ -51,9 +33,7 @@ public enum BugSeverity {
     }
 
     /**
-     * Finds a BugSeverity by its display name.
-     * This method is useful when parsing data from UI or external sources.
-     *
+     * Finds a BugSeverity by its display name.*
      * @param displayName The display name to search for
      * @return The matching BugSeverity, or null if not found
      */

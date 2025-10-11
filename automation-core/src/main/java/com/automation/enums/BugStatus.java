@@ -1,30 +1,16 @@
 package com.automation.enums;
 
 /**
- * Enumeration representing the possible statuses of a bug in the bug tracking system.
- *
- * This enum encapsulates the lifecycle states of a bug from creation to closure.
- * Using enums instead of strings provides type safety and prevents invalid values.
- *
- * @author Automation Team
+ * Enumeration representing the statuses of the bug.
+ * @author Rom
  * @version 1.0
  */
 public enum BugStatus {
-    /**
-     * Bug has been reported but not yet assigned or started
-     */
     OPEN("Open"),
-
     FIXED("Fixed"),
-
     CLOSED("Closed"),
-
     NOT_A_BUG("Not a bug"),
-
     NOT_REPRODUCED("Not reproduced");
-
-
-
 
     private final String displayName;
 
@@ -47,9 +33,7 @@ public enum BugStatus {
     }
 
     /**
-     * Finds a BugStatus by its display name.
-     * This method is useful when parsing data from UI or external sources.
-     *
+     * Finds a BugStatus by its display name.*
      * @param displayName The display name to search for
      * @return The matching BugStatus, or null if not found
      */

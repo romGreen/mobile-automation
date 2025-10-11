@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
  * Usage:
  * Add @ExtendWith(TestListener.class) to test classes
  *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
 public class TestListener implements BeforeAllCallback, BeforeEachCallback,

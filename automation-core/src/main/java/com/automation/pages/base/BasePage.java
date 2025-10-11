@@ -1,8 +1,11 @@
 package com.automation.pages.base;
 
-import com.automation.core.context.MobileContextManager;
+import com.automation.core.config.ConfigReader;
+import com.automation.pages.components.NavigationBar;
+import com.automation.pages.locators.BugTrackerLocators;
 import com.automation.utils.GestureHelper;
 import com.automation.utils.WaitHelper;
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,16 +17,15 @@ import org.apache.logging.log4j.Logger;
  * - Driver access
  * - Wait operations
  * - Gesture operations
- * - Context switching
+ * - Navigation bar
  * - Logging
+ * - Element presence checks
+ * - Hebrew date utilities
  *
- * Demonstrates OOP principles:
- * - Abstraction: Defines common page behavior
- * - Inheritance: All page classes extend this
- * - Encapsulation: Protects driver and helpers
- * - Code reuse: Common methods available to all pages
+ * For form-specific functionality (text input, dropdowns, date pickers, file attachment),
+ * see BaseFormPage which extends this class.
  *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
 public abstract class BasePage {
@@ -32,31 +34,52 @@ public abstract class BasePage {
     protected final AndroidDriver driver;
     protected final WaitHelper waitHelper;
     protected final GestureHelper gestureHelper;
-    protected final MobileContextManager contextManager;
+    protected final ConfigReader configReader;
+    public final NavigationBar navigationBar;
 
     /**
-     * Constructs a BasePage with required dependencies.
+     * Hebrew month names for date picker operations.
+     * Used by both getMonthNumberFromHebrew() and getHebrewMonthName().
+     */
+    private static final String[] HEBREW_MONTHS = {
+            "ינואר",
+            "פברואר",
+            "מרץ",
+            "אפריל",
+            "מאי",
+            "יוני",
+            "יולי",
+            "אוגוסט",
+            "ספטמבר",
+            "אוקטובר",
+            "נובמבר",
+            "דצמבר"
+    };
+
+    /**
+     * Constructs a BasePage
      *
      * @param driver         The AndroidDriver instance
      * @param waitHelper     Helper for wait operations
      * @param gestureHelper  Helper for gesture operations
-     * @param contextManager Manager for context switching
+     * @param configReader   Configuration reader for accessing settings
      */
     protected BasePage(AndroidDriver driver,
                        WaitHelper waitHelper,
                        GestureHelper gestureHelper,
-                       MobileContextManager contextManager) {
+                       ConfigReader configReader) {
         this.driver = driver;
         this.waitHelper = waitHelper;
         this.gestureHelper = gestureHelper;
-        this.contextManager = contextManager;
+        this.configReader = configReader;
+        this.navigationBar = new NavigationBar(driver, waitHelper, gestureHelper, configReader);
 
         log.debug("Initialized page: {}", getClass().getSimpleName());
     }
 
     /**
-     * Checks if the page is currently loaded.
-     * This method must be implemented by subclasses to define page-specific load criteria.
+     * Checks if the page is loaded.
+     * This method must be implemented by subclasses to define page load implementation.
      *
      * @return true if page is loaded, false otherwise
      */
@@ -91,15 +114,6 @@ public abstract class BasePage {
     }
 
     /**
-     * Gets the current page source for debugging.
-     *
-     * @return The page source XML/HTML
-     */
-    protected String getPageSource() {
-        return driver.getPageSource();
-    }
-
-    /**
      * Navigates back using the device back button.
      */
     protected void navigateBack() {
@@ -108,10 +122,9 @@ public abstract class BasePage {
     }
 
     /**
-     * Sleeps for the specified duration.
-     * Use sparingly - prefer explicit waits.
+     * Sleeps for the custom duration.
      *
-     * @param milliseconds Time to sleep
+     * @param milliseconds sleeping time in milliseconds
      */
     protected void sleep(long milliseconds) {
         try {
@@ -122,28 +135,87 @@ public abstract class BasePage {
         }
     }
 
+    // ===== Element Presence Helper Methods =====
+
     /**
-     * Takes a screenshot and returns it as base64.
+     * Checks if an element with the given resource ID is present on screen.
+     * Used by page isLoaded() implementations.
      *
-     * @return Screenshot as base64 string
+     * @param resourceId The resource ID to check (e.g., BugTrackerLocators.BUG_ID_FIELD)
+     * @return true if element is present, false otherwise
      */
-    protected String captureScreenshot() {
-        return driver.getScreenshotAs(org.openqa.selenium.OutputType.BASE64);
+    protected boolean isElementPresentById(String resourceId) {
+        return !driver.findElements(
+                AppiumBy.androidUIAutomator(
+                        BugTrackerLocators.uiSelectorById(resourceId)
+                )).isEmpty();
     }
 
     /**
-     * Hides the keyboard if it's currently shown.
+     * Checks if an element with the given text is present on screen.
+     * Used by page isLoaded() implementations.
+     *
+     * @param text The text to check
+     * @return true if element is present, false otherwise
      */
-    protected void hideKeyboard() {
-        try {
-            if (driver.isKeyboardShown()) {
-                driver.hideKeyboard();
-                log.debug("Keyboard hidden");
+    protected boolean isElementPresentByText(String text) {
+        return !driver.findElements(
+                AppiumBy.androidUIAutomator(
+                        BugTrackerLocators.uiSelectorByText(text)
+                )).isEmpty();
+    }
+
+    /**
+     * Checks if any of the given resource IDs is present on screen.
+     * Useful for pages that can load in different scroll positions.
+     *
+     * @param resourceIds Array of resource IDs to check
+     * @return true if at least one element is present, false otherwise
+     */
+    protected boolean isAnyElementPresentById(String... resourceIds) {
+        for (String resourceId : resourceIds) {
+            if (isElementPresentById(resourceId)) {
+                return true;
             }
-        } catch (Exception e) {
-            log.debug("Could not hide keyboard (might not be shown)", e);
+        }
+        return false;
+    }
+
+    // ===== Hebrew Date Utilities =====
+
+    /**
+     * Converts Hebrew month name to month number.
+     *
+     * @param hebrewMonth Hebrew month name
+     * @return Month number (1-12), or -1 if not found
+     */
+    protected int getMonthNumberFromHebrew(String hebrewMonth) {
+        log.debug("Looking for Hebrew month: '{}' (length: {})", hebrewMonth, hebrewMonth.length());
+
+        for (int i = 0; i < HEBREW_MONTHS.length; i++) {
+            log.debug("Comparing with HEBREW_MONTHS[{}]: '{}' (length: {})", i, HEBREW_MONTHS[i], HEBREW_MONTHS[i].length());
+            if (HEBREW_MONTHS[i].equals(hebrewMonth)) {
+                log.debug("Match found! Month number: {}", i + 1);
+                return i + 1;
+            }
+        }
+
+        log.warn("No match found for Hebrew month: '{}'", hebrewMonth);
+        return -1;
+    }
+
+    /**
+     * Converts month number to Hebrew month name.
+     *
+     * @param monthNumber Month number (1-12)
+     * @return Hebrew month name
+     */
+    protected String getHebrewMonthName(int monthNumber) {
+        if (monthNumber >= 1 && monthNumber <= 12) {
+            return HEBREW_MONTHS[monthNumber - 1];
+        } else {
+            log.warn("Invalid month number: {}, returning January", monthNumber);
+            return HEBREW_MONTHS[0];
         }
     }
-
-
 }

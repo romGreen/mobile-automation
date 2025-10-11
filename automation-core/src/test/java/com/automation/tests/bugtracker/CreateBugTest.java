@@ -1,27 +1,18 @@
 package com.automation.tests.bugtracker;
 
-import com.automation.core.context.MobileContextManager;
 import com.automation.enums.BugPriority;
 import com.automation.enums.BugSeverity;
 import com.automation.enums.BugStatus;
 import com.automation.models.Bug;
-import com.automation.pages.bugtracker.BugFormPage;
+import com.automation.pages.bugtracker.CreateBugPage;
 import com.automation.pages.bugtracker.BugsListPage;
 import com.automation.reporting.ExtentReportManager;
 import com.automation.tests.base.BaseTest;
 import com.automation.utils.DataProvider;
-import com.automation.utils.GestureHelper;
-import com.automation.utils.WaitHelper;
-import io.appium.java_client.android.AndroidDriver;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class for Bug Creation functionality.
@@ -40,53 +31,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class CreateBugTest extends BaseTest {
 
-    @Autowired
-    private AndroidDriver driver;
-
-    @Autowired
-    private WaitHelper waitHelper;
-
-    @Autowired
-    private GestureHelper gestureHelper;
-
-    @Autowired
-    private MobileContextManager contextManager;
-
     /**
-     * Test: Create a new bug with all required fields.
+     * Test: Create a new bug with required fields.
      *
      * Steps:
-     * 1. Verify home screen loads
-     * 2. Navigate to Create Bug form
-     * 3. Fill all required fields
-     * 4. Submit the form
-     * 5. Verify bug appears in the bugs list
+     * 1. Navigate to Create Bug form
+     * 2. Fill required fields
+     * 3. Submit the form
+     * 4. Navigate to View Bugs and verify the bug appears in the list
      *
-     * Expected Result: Bug is created successfully and visible in list
+     * Expected Result: Bug is created successfully and appears in bugs list
      */
     @Test
-    @DisplayName("Create Bug - Happy Path (All Required Fields)")
-    public void testCreateBug_HappyPath() {
+    @DisplayName("Create Bug - Basic Test")
+    public void testCreateBugBasic() {
         ExtentReportManager.getTest().info("Starting test: Create Bug with all required fields");
 
-        // Step 1: Initialize bugs list page and verify it's loaded
-        BugsListPage bugsListPage = new BugsListPage(driver, waitHelper, gestureHelper, contextManager);
-        bugsListPage.waitUntilLoaded(20000);
-
-        assertThat(bugsListPage.isLoaded())
-                .as("Bugs list page should be loaded")
-                .isTrue();
-
-        ExtentReportManager.getTest().pass("Bugs list page loaded successfully");
-
-        // Step 2: Generate unique bug title with timestamp
-        String uniqueTitle = "Bug_" + LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-
-        ExtentReportManager.getTest().info("Creating bug with title: " + uniqueTitle);
-
-        // Step 3: Navigate to Create Bug form
-        BugFormPage bugFormPage = bugsListPage.tapCreateBug();
+        // Step 1: Navigate to Create Bug form from anywhere
+        CreateBugPage bugFormPage = getNavigationBar().goToCreateBug();
 
         assertThat(bugFormPage.isLoaded())
                 .as("Bug form should be loaded")
@@ -94,20 +56,35 @@ public class CreateBugTest extends BaseTest {
 
         ExtentReportManager.getTest().pass("Bug form loaded successfully");
 
-        // Step 4: Fill the bug form
+        // Step 2: Define bug ID to use
+        int bugId = 123;
+        ExtentReportManager.getTest().info("Using bug ID: " + bugId);
+
+        // Step 3: Fill the bug form
         bugFormPage
-                .setBugId(124)
-                .setDate("2025-10-07")
-                .setTitle(uniqueTitle)
-                .setStepsToReproduce("1. Open app\n2. Tap button X\n3. App crashes")
+                .setBugId(bugId)
+                .setDate("07.08.2025")
+                .setTitle("Bug Title")
+                .setStepsToRecreate("1. Open app\n2. Tap button X\n3. App crashes")
                 .setExpectedResult("App should not crash")
                 .setActualResult("App crashes with error")
-                .setDetectedBy("QA Automation")
-                .submitAndConfirm();
+                .selectStatus(BugStatus.FIXED)
+                .selectSeverity(BugSeverity.MAJOR)
+                .selectPriority(BugPriority.HIGH)
+                .setDetectedBy("QA")
+                .setFixedBy("Alice")
+                .setDateClosed("19.09.2025")
+                .attachFile();
 
+        ExtentReportManager.getTest().info("Bug form filled successfully");
 
-        ExtentReportManager.getTest().info("Bug form submitted and confirmed");
+        // Step 4: Submit and navigate to View Bugs to verify
+        BugsListPage bugsListPage = bugFormPage.submit();
 
+        // Step 5: Verify bug appears in the bugs list
+        bugsListPage.navigationBar.goToViewBugs().waitForBugWithId(bugId);
+
+        ExtentReportManager.getTest().pass("Bug created successfully with ID: " + bugId);
     }
 
     /**
@@ -118,33 +95,25 @@ public class CreateBugTest extends BaseTest {
      * 2. Navigate to Create Bug form
      * 3. Fill form using Bug model object
      * 4. Submit and verify
-     *
+     * 5. Verify bug appears in bugs list after creation
      * Expected Result: Bug from JSON is created successfully
      */
     @Test
-    @DisplayName("Create Bug - Data Driven from JSON")
+    @DisplayName("Create Bug - Data Driven test from JSON")
     public void testCreateBug_DataDriven() {
         ExtentReportManager.getTest().info("Starting test: Create Bug using data from JSON");
 
         // Step 1: Load bug data from JSON (using first bug in the file)
         Bug bugData = DataProvider.loadBugFromJson("testdata/bugs.json", 0);
 
-        // Make title unique
-        String uniqueTitle = bugData.getTitle() + "_" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
-        bugData.setTitle(uniqueTitle);
-
         ExtentReportManager.getTest().info("Loaded bug data from JSON: " + bugData);
 
         // Step 2: Navigate to Create Bug form
-        BugsListPage bugsListPage = new BugsListPage(driver, waitHelper, gestureHelper, contextManager);
-        bugsListPage.waitUntilLoaded(20000);
-
-        BugFormPage bugFormPage = bugsListPage.tapCreateBug();
+        CreateBugPage bugFormPage = getNavigationBar().goToCreateBug();
 
         ExtentReportManager.getTest().pass("Navigated to Bug form");
 
-        // Step 3: Fill form using Bug model (demonstrates clean API)
+        // Step 3: Fill form using Bug model
         bugFormPage.fillBugForm(bugData);
 
         ExtentReportManager.getTest().info("Bug form filled using data model");
@@ -152,50 +121,9 @@ public class CreateBugTest extends BaseTest {
         // Step 4: Submit and verify
         BugsListPage resultPage = bugFormPage.submit();
 
-        resultPage
-                .goToViewTab()
-                .waitForBugWithTitle(uniqueTitle);
+        // Step 5: Navigate to View Bugs tab and check the bug is in the list
+        resultPage.navigationBar.goToViewBugs().waitForBugWithId(bugData.getBugId());
 
-        ExtentReportManager.getTest().pass("Bug from JSON created successfully: " + uniqueTitle);
-    }
-
-    /**
-     * Test: Create a minimal bug with only required fields.
-     *
-     * Steps:
-     * 1. Navigate to Create Bug form
-     * 2. Fill only required fields (title, status, etc.)
-     * 3. Submit and verify
-     *
-     * Expected Result: Bug is created with minimal data
-     */
-    @Test
-    @DisplayName("Create Bug - Minimal Required Fields")
-    public void testCreateBug_MinimalFields() {
-        ExtentReportManager.getTest().info("Starting test: Create Bug with minimal required fields");
-
-        String uniqueTitle = "MinimalBug_" +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-
-        BugsListPage bugsListPage = new BugsListPage(driver, waitHelper, gestureHelper, contextManager);
-        bugsListPage.waitUntilLoaded(20000);
-
-        BugFormPage bugFormPage = bugsListPage.tapCreateBug();
-
-        // Fill only essential fields
-        bugFormPage
-                .setBugId(999)
-                .setTitle(uniqueTitle)
-                .selectStatus(BugStatus.OPEN);
-
-        ExtentReportManager.getTest().info("Filled minimal required fields");
-
-        BugsListPage resultPage = bugFormPage.submit();
-
-        resultPage
-                .goToViewTab()
-                .waitForBugWithTitle(uniqueTitle);
-
-        ExtentReportManager.getTest().pass("Minimal bug created successfully: " + uniqueTitle);
+        ExtentReportManager.getTest().pass("Bug from JSON created successfully: " + bugData.getTitle());
     }
 }

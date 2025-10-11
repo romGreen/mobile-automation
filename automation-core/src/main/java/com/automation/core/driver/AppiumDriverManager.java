@@ -7,7 +7,6 @@ import io.appium.java_client.android.options.UiAutomator2Options;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.time.Duration;
@@ -17,20 +16,15 @@ import java.time.Duration;
  *
  * This class manages the lifecycle of an Appium AndroidDriver instance.
  * It handles driver initialization, configuration, and cleanup.
+ * Registered as a Spring bean in AutomationConfig.
  *
- * Demonstrates OOP principles:
- * - Implements DriverManager interface (polymorphism)
- * - Encapsulates driver creation logic
- * - Uses dependency injection for ConfigReader
- * - Thread-safe driver management
- *
- * @author Automation Team
+ * @author Rom
  * @version 1.0
  */
-@Component
 public class AppiumDriverManager implements DriverManager {
 
     private static final Logger log = LogManager.getLogger(AppiumDriverManager.class);
+    private static final String DEFAULT_APPIUM_SERVER_URL = "http://127.0.0.1:4723";
 
     private AndroidDriver driver;
     private final ConfigReader configReader;
@@ -59,7 +53,7 @@ public class AppiumDriverManager implements DriverManager {
             UiAutomator2Options options = buildDriverOptions();
 
             // Create driver instance
-            String serverUrl = configReader.getString("appiumServerUrl", "http://127.0.0.1:4723");
+            String serverUrl = configReader.getString("appiumServerUrl", DEFAULT_APPIUM_SERVER_URL);
             driver = new AndroidDriver(new URL(serverUrl), options);
 
             log.info("Driver started successfully");
@@ -109,10 +103,9 @@ public class AppiumDriverManager implements DriverManager {
     }
 
     /**
-     * Builds UiAutomator2Options from configuration.
-     *
-     * This method encapsulates the complexity of driver configuration,
-     * making it easy to modify or extend capabilities.
+     * Builds UiAutomator2options from configuration.
+     * This method encapsulates the driver configuration,
+     * making it easy to modify or extend.
      *
      * @return Configured UiAutomator2Options
      */
@@ -159,14 +152,6 @@ public class AppiumDriverManager implements DriverManager {
             }
         }
 
-        // WebView support
-        options.setCapability("ensureWebviewsHavePages",
-                configReader.getBoolean("ensureWebviewsHavePages", false));
-        options.setCapability("chromedriverAutodownload",
-                configReader.getBoolean("chromedriverAutodownload", true));
-        options.setCapability("webviewConnectTimeout",
-                configReader.getInt("webviewConnectTimeout", 15000));
-
         // Security - allow adb_shell for advanced text input
         options.setCapability("allowInsecure", new String[]{"adb_shell"});
 
@@ -181,15 +166,13 @@ public class AppiumDriverManager implements DriverManager {
     /**
      * Ensures the app is in the foreground after driver starts.
      *
-     * This handles edge cases where the app might not be the active app
-     * after session creation.
+     * This handles edge cases where the app might not be the active app after session creation.
      */
     private void ensureAppInForeground() {
         String appPackage = configReader.getString("appPackage", "");
         if (appPackage.isBlank()) {
             return;
         }
-
         try {
             String currentPackage = driver.getCurrentPackage();
             if (currentPackage == null || !currentPackage.equals(appPackage)) {

@@ -12,16 +12,8 @@ import java.util.Map;
 /**
  * JSON-based implementation of ConfigReader interface.
  *
- * This class reads configuration from a JSON file located in the classpath.
- * It uses Jackson ObjectMapper for JSON parsing and provides thread-safe
- * singleton access to configuration data.
- *
- * Demonstrates OOP principles:
- * - Implements ConfigReader interface (polymorphism)
- * - Singleton pattern for shared configuration
- * - Encapsulation of JSON parsing logic
- *
- * @author Automation Team
+ * This class reads configuration from a JSON file located in path: config/config.json.
+ * @author Rom
  * @version 1.0
  */
 public class JsonConfigReader implements ConfigReader {
@@ -88,22 +80,12 @@ public class JsonConfigReader implements ConfigReader {
     }
 
     @Override
-    public boolean getBoolean(String key) {
-        return getBoolean(key, false);
-    }
-
-    @Override
     public boolean getBoolean(String key, boolean defaultValue) {
         String value = getString(key);
         if (value == null) {
             return defaultValue;
         }
         return Boolean.parseBoolean(value);
-    }
-
-    @Override
-    public int getInt(String key) {
-        return getInt(key, 0);
     }
 
     @Override
