@@ -30,17 +30,18 @@ A mobile automation framework for testing the ATID Bug Tracker Android applicati
 
 2. **Configure the framework**
 
-   Edit `automation-core/src/test/resources/config/config.json`:
-   ```json
-   {
-     "appiumServerUrl": "http://127.0.0.1:4723",
-     "udid": "YOUR_DEVICE_UDID",
-     "appPackage": "com.atidcollege.bugtracker",
-     "appActivity": "com.atidcollege.bugtracker.MainActivity"
-   }
+   Copy the template configuration file and update it with your device details:
+   ```bash
+   cd automation-core/src/test/resources/config/
+   cp config.example.json config.json
    ```
 
-   Get your device UDID with the commend: `adb devices`
+   Edit `config.json` and update these fields:
+   - `deviceName`: Your device name (e.g., "Samsung Galaxy S21")
+   - `udid`: Your device UDID (get it by running `adb devices`)
+
+   **Important:** The `config.json` file is in `.gitignore` and should NOT be committed to Git.
+   Each developer maintains their own local configuration.
 
 3. **Start Appium server**
    ```bash
@@ -62,7 +63,7 @@ A mobile automation framework for testing the ATID Bug Tracker Android applicati
    
    ./gradlew :automation-core:test --tests "com.automation.tests.bugtracker.ListBugsTest.testListAllBugTitles"   
    
-   ./gradlew test --tests "EditBugTest.testEditBugStatus_OpenToFixed"                                                                                         
+   ./gradlew test --tests "EditBugTest.testEditBugStatus_OpenToClosed"                                                                                         
 
    ```
 
@@ -128,7 +129,8 @@ automation-core/
     │       └── TestListener.java        # JUnit test listener
     └── resources/
         ├── config/
-        │   └── config.json              # Test configuration
+        │   ├── config.json              # Test configuration (not in Git - created from template)
+        │   └── config.example.json      # Configuration template (committed to Git)
         └── testdata/
             ├── bugs.json                # Test data for bugs
             └── files/
@@ -179,32 +181,41 @@ External test data in JSON format, separated from test logic.
 #### testCreateBugBasic
 **What it does:**
 1. Navigates to Create Bug form (works from any page)
-2. Fills all required fields (Bug ID, Title, Steps, Expected/Actual Result, Status, Severity, Priority, Detected By)
-3. Submits the form
-4. Validates success message appears
+2. Fills all required fields (Bug ID, Date, Title, Steps to Recreate, Expected Result, Actual Result, Status, Severity, Priority, Detected By, Fixed By, Date Closed)
+3. Attaches a file
+4. Submits the form
+5. Navigates to View Bugs tab and verifies the bug appears in the list by Bug ID
+
+**Validation:** Waits for bug with the specified Bug ID to appear in the bugs list, confirming successful creation.
 
 
 #### testCreateBug_DataDriven
 **What it does:**
-1. Loads bug data from JSON file
+1. Loads bug data from JSON file (testdata/bugs.json)
 2. Navigates to Create Bug form
-3. Fills form using Bug model object
+3. Fills form using Bug model object (data-driven approach)
 4. Submits the form
-5. Navigates to View Bugs and verifies bug appears in list
+5. Navigates to View Bugs tab and verifies bug appears in list by Bug ID
+
+**Validation:** Waits for bug with the specified Bug ID to appear in the bugs list, confirming successful creation.
 
 ---
 
 ### EditBugTest
 
-#### testEditBugStatus_OpenToFixed
+#### testEditBugStatus_OpenToClosed
 **What it does:**
-1. Creates a new bug with status "Open"
-2. Navigates to View Bugs tab
-3. Finds the bug by Bug ID
-4. Clicks Edit button for that bug
-5. Changes status from "Open" to "Fixed"
-6. Saves the changes
-7. Verifies bug appears in "fixed" filtered results
+1. Creates a new bug with status "Open" (Bug ID: 905)
+2. Navigates to View Bugs tab and waits for the bug to appear
+3. Clicks Edit button for that specific bug (using Bug ID to identify it)
+4. Changes status from "Open" to "Closed"
+5. Updates Date Closed field
+6. Attaches a file
+7. Saves the changes
+8. Clicks "Closed" filter button
+9. Verifies bug appears in the "Closed" filtered results
+
+**Validation:** Confirms the bug is found in the Closed filter view, proving the status update was successful.
 
 ---
 
@@ -213,7 +224,14 @@ External test data in JSON format, separated from test logic.
 #### testListAllBugTitles
 **What it does:**
 1. Navigates to View Bugs tab
-2. Retrieves all bug titles from the list
-3. Prints all bug titles to console
+2. Retrieves all bug titles from the list (scrolls through entire list)
+3. Prints all bug titles to console with numbering
+4. Handles empty list case gracefully
+
+**Output:**
+- If bugs exist: Prints numbered list of all bug titles
+- If list is empty: Prints "No bugs in the list" and passes the test
+
+**Note:** This test extracts only the bug titles (without Bug IDs) and scrolls through the entire list to capture all bugs.
 
 ---

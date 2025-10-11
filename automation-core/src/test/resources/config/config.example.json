@@ -1,0 +1,38 @@
+{
+  "appiumServerUrl": "http://127.0.0.1:4723",
+  "platformName": "Android",
+  "automationName": "UiAutomator2",
+  "deviceName": "YOUR_DEVICE_NAME_HERE",
+  "udid": "YOUR_DEVICE_UDID_HERE",
+
+  "appPackage": "com.atidcollege.bugtracker",
+  "appActivity": "com.atidcollege.bugtracker.MainActivity",
+  "appWaitActivity": "*",
+
+  "noReset": true,
+  "autoGrantPermissions": true,
+  "newCommandTimeout": 120,
+
+  "allowInsecure": ["adb_shell"],
+  "chromedriverAutodownload": true,
+  "ensureWebviewsHavePages": false,
+  "webviewConnectTimeout": 15000,
+
+  "enableFileAttachment": true,
+
+  "comments": {
+    "_description": "Configuration file for mobile automation framework",
+    "_appiumServerUrl": "URL of the Appium server (default: http://127.0.0.1:4723)",
+    "_platformName": "Mobile platform",
+    "_automationName": "Automation engine (UiAutomator2 for Android, XCUITest for iOS)",
+    "_deviceName": "Name of the device/emulator",
+    "_udid": "Unique Device ID - Get it by running 'adb devices' command. Leave empty for emulators or single device, required for multiple devices",
+    "_appPackage": "Android package name of the app under test",
+    "_appActivity": "Main activity to launch",
+    "_appWaitActivity": "Activity to wait for (* means any activity)",
+    "_noReset": "Don't reset app state between sessions (true/false)",
+    "_autoGrantPermissions": "Automatically grant app permissions (true/false)",
+    "_newCommandTimeout": "Maximum time in seconds before Appium assumes the client is inactive",
+    "_enableFileAttachment": "Enable file attachment in bug creation (true/false). Set to false if testing on non-Samsung devices where media picker UI differs"
+  }
+}
