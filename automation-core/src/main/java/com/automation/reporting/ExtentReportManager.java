@@ -30,10 +30,10 @@ public class ExtentReportManager {
     private static final String REPORT_NAME = "AutomationTestReport";
 
     /**
-     * Private constructor to prevent instantiation (Singleton pattern).
+     * Private constructor to prevent instantiation.
      */
     private ExtentReportManager() {
-        throw new UnsupportedOperationException("Utility class - do not instantiate");
+        throw new UnsupportedOperationException("Utility class- don't instantiate");
     }
 
     /**

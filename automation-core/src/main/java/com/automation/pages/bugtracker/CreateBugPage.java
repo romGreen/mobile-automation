@@ -1,6 +1,5 @@
 package com.automation.pages.bugtracker;
 
-
 import com.automation.core.config.ConfigReader;
 import com.automation.enums.BugPriority;
 import com.automation.enums.BugSeverity;
@@ -10,12 +9,8 @@ import com.automation.pages.base.BaseFormPage;
 import com.automation.pages.locators.BugTrackerLocators;
 import com.automation.utils.GestureHelper;
 import com.automation.utils.WaitHelper;
-import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
-
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -383,41 +378,5 @@ public class CreateBugPage extends BaseFormPage {
     public BugsListPage submit() {
         // Use method from BaseFormPage with visibility check enabled
         return submitFormByButton(BugTrackerLocators.ADD_BUG_BUTTON_TEXT, true);
-    }
-
-    /**
-     * Waits for success message after bug creation.
-     * @param timeoutSeconds Maximum time to wait in seconds
-     * @return true if success message appears with correct text
-     */
-    public boolean waitForSuccessMessage(int timeoutSeconds) {
-        gestureHelper.scrollDown();
-
-        try {
-            // Wait for success message by resource ID
-            By successMsgLocator = AppiumBy.androidUIAutomator(
-                    BugTrackerLocators.uiSelectorById("statusMessage"));
-            WebElement msgElement = waitHelper.createWait(timeoutSeconds)
-                    .until(ExpectedConditions.presenceOfElementLocated(successMsgLocator));
-
-            String text = msgElement.getText();
-            log.info("Status message after submit: {}", text);
-            return text != null && text.toLowerCase().contains("bug created successfully");
-
-        } catch (Exception e) {
-            log.error("Success message not found within {} seconds", timeoutSeconds, e);
-            return false;
-        }
-    }
-
-    /**
-     * Submits the form and waits for success message.
-     * Convenience method combining submit() + waitForSuccessMessage().
-     *
-     * @return true if success message appears
-     */
-    public boolean submitAndConfirm() {
-        submit();
-        return waitForSuccessMessage(5);
     }
 }

@@ -17,7 +17,6 @@ public enum BugSeverity {
 
     /**
      * Constructor for BugSeverity enum.
-     *
      * @param displayName The text that appears in the UI for this severity
      */
     BugSeverity(String displayName) {

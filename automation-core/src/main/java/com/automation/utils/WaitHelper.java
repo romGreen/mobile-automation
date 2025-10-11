@@ -24,10 +24,8 @@ import java.time.Duration;
 @Component
 @Scope("prototype")
 public class WaitHelper {
-
     private static final Logger log = LogManager.getLogger(WaitHelper.class);
     private static final int DEFAULT_TIMEOUT_SECONDS = 15;
-
     private final AndroidDriver driver;
     private final WebDriverWait wait;
 
@@ -43,7 +41,6 @@ public class WaitHelper {
 
     /**
      * Constructs a WaitHelper with custom timeout.
-     *
      * @param driver The AndroidDriver instance
      * @param timeoutSeconds Timeout in seconds for wait operations
      */
@@ -54,7 +51,6 @@ public class WaitHelper {
 
     /**
      * Waits for an element to be visible by its locator.
-     *
      * @param by Element locator
      * @return The visible WebElement
      * @throws ElementNotFoundException if element is not found within timeout
@@ -73,9 +69,8 @@ public class WaitHelper {
 
     /**
      * Waits for an element using UiAutomator selector.
-     *
      * @param uiAutomatorSelector The UiAutomator selector string
-     * @return The visible WebElement
+     * @return The visible element
      * @throws ElementNotFoundException if element is not found
      */
     public WebElement waitForUiAutomator(String uiAutomatorSelector) {
@@ -85,7 +80,6 @@ public class WaitHelper {
 
     /**
      * Creates a new WebDriverWait with custom timeout.
-     *
      * @param timeoutSeconds Custom timeout in seconds
      * @return New WebDriverWait instance
      */

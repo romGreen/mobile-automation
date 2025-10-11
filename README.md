@@ -146,13 +146,10 @@ Separates page structure from test logic for maintainability.
 Reusable navigation component using composition.
 The app has navigation tabs on all screens, so instead of duplicating navigation logic, I use a shared NavigationBar component.
 
-#### 3. getNavigationBar()  in BaseTest
-Tests can navigate from any page without needing specific page instances.
-
-#### 4. Spring Dependency Injection
+#### 3. Spring Dependency Injection
 Automatic dependency management through Spring.
 
-#### 5. OOP Principles Implementation
+#### 4. OOP Principles Implementation
 The framework demonstrates core object-oriented programming principles:
 
 - **Abstraction**: BasePage provides abstract interface for all pages. ConfigReader and DriverManager are interfaces with subclasses implementations.
@@ -162,13 +159,13 @@ The framework demonstrates core object-oriented programming principles:
   - `BaseFormPage extends BasePage` → Form-specific functionality (dropdowns, date pickers, file attachment)
   - `CreateBugPage extends BaseFormPage` → Create bug form
   - `EditBugPage extends BaseFormPage` → Edit bug form
-- **Interface Segregation Principle**: Pages only inherit methods they actually need. HomePage and BugsListPage extend BasePage directly (no form methods), while CreateBugPage and EditBugPage extend BaseFormPage (with form methods). This prevents "fat" base classes with unused methods.
+- **Interface Segregation Principle**: Pages only inherit methods they actually need. HomePage and BugsListPage extend BasePage directly (no form methods), while CreateBugPage and EditBugPage extend BaseFormPage (with form methods).
 - **Polymorphism**: Different implementations of ConfigReader (JsonConfigReader) and DriverManager (AppiumDriverManager) can be used.
 - **Composition**: BasePage has a NavigationBar component rather than inheritance - composition over inheritance when it's better.
 - **Single Responsibility**: Each class has one clear purpose - WaitHelper handles waits, GestureHelper handles gestures, CreateBugPage manages only bug creation...
 - **Don't Repeat Yourself**: Common functionality is extracted to base classes as reusable protected methods. Methods like `isLoaded()`, `clearAndType()`, `attachFile()` are shared across page objects, eliminating code duplication.
  
-#### 6. Data-Driven Testing
+#### 5. Data-Driven Testing
 External test data in JSON format, separated from test logic.
 
 ---
@@ -181,10 +178,9 @@ External test data in JSON format, separated from test logic.
 #### testCreateBugBasic
 **What it does:**
 1. Navigates to Create Bug form (works from any page)
-2. Fills all required fields (Bug ID, Date, Title, Steps to Recreate, Expected Result, Actual Result, Status, Severity, Priority, Detected By, Fixed By, Date Closed)
-3. Attaches a file
-4. Submits the form
-5. Navigates to View Bugs tab and verifies the bug appears in the list by Bug ID
+2. Fills required fields (Bug ID, Date..)
+3. Submits the form 
+4. Navigates to View Bugs tab and verifies the bug appears in the list by Bug ID
 
 **Validation:** Waits for bug with the specified Bug ID to appear in the bugs list, confirming successful creation.
 
@@ -205,9 +201,9 @@ External test data in JSON format, separated from test logic.
 
 #### testEditBugStatus_OpenToClosed
 **What it does:**
-1. Creates a new bug with status "Open" (Bug ID: 905)
+1. Creates a new bug with status "Open"
 2. Navigates to View Bugs tab and waits for the bug to appear
-3. Clicks Edit button for that specific bug (using Bug ID to identify it)
+3. Clicks Edit button for that specific bug
 4. Changes status from "Open" to "Closed"
 5. Updates Date Closed field
 6. Attaches a file

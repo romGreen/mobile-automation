@@ -25,7 +25,6 @@ public class JsonConfigReader implements ConfigReader {
 
     /**
      * Constructs a JsonConfigReader using the default config file.
-     *
      * @throws ConfigurationException if config file cannot be loaded
      */
     public JsonConfigReader() {
@@ -34,7 +33,6 @@ public class JsonConfigReader implements ConfigReader {
 
     /**
      * Constructs a JsonConfigReader using a specified config file.
-     *
      * @param configFilePath Path to the config file in classpath
      * @throws ConfigurationException if config file cannot be loaded
      */

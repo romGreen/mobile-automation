@@ -13,15 +13,6 @@ import org.apache.logging.log4j.Logger;
 /**
  * Abstract base class for all Page Objects in the framework.
  *
- * This class provides common functionality shared by all pages:
- * - Driver access
- * - Wait operations
- * - Gesture operations
- * - Navigation bar
- * - Logging
- * - Element presence checks
- * - Hebrew date utilities
- *
  * For form-specific functionality (text input, dropdowns, date pickers, file attachment),
  * see BaseFormPage which extends this class.
  *
@@ -39,7 +30,7 @@ public abstract class BasePage {
 
     /**
      * Hebrew month names for date picker operations.
-     * Used by both getMonthNumberFromHebrew() and getHebrewMonthName().
+     * Used by getMonthNumberFromHebrew() and getHebrewMonthName().
      */
     private static final String[] HEBREW_MONTHS = {
             "ינואר",
@@ -139,7 +130,6 @@ public abstract class BasePage {
 
     /**
      * Checks if an element with the given resource ID is present on screen.
-     * Used by page isLoaded() implementations.
      *
      * @param resourceId The resource ID to check (e.g., BugTrackerLocators.BUG_ID_FIELD)
      * @return true if element is present, false otherwise
@@ -153,7 +143,6 @@ public abstract class BasePage {
 
     /**
      * Checks if an element with the given text is present on screen.
-     * Used by page isLoaded() implementations.
      *
      * @param text The text to check
      * @return true if element is present, false otherwise

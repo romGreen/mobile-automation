@@ -15,8 +15,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test class for editing existing bugs.
- *
+ * Test class for editing bugs.
  * Test Coverage:
  * - Edit bug status from Open to Closed
  *
@@ -33,7 +32,7 @@ public class EditBugTest extends BaseTest {
      * 3. Click on the created bug
      * 4. Change status to Fixed + bonus change date closed field
      * 5. Save the change
-     * 6. Verify the bug in fixed list
+     * 6. Verify the bug in Closed list
      *
      * Expected Result: Bug status is successfully changed
      */
@@ -67,32 +66,34 @@ public class EditBugTest extends BaseTest {
 
         BugsListPage resultPage = bugFormPage.submit();
         ExtentReportManager.getTest().info("Created bug with ID: " + bugId + ", title: " + Title);
+
+        // Step 2: Navigate to View Bugs
         resultPage.navigationBar.goToViewBugs();
         resultPage.waitForBugWithId(bugId);
 
         ExtentReportManager.getTest().pass("Bug created successfully");
 
-        // Step 2: Click Edit button for the bug using the Bug ID
+        // Step 3: Click Edit button for the bug using the Bug ID
         EditBugPage editForm = resultPage.clickEditButtonForBugById(bugId);
 
         ExtentReportManager.getTest().info("Opened bug for editing");
 
-        // Step 3: Change status to Closed + bonus change date closed
+        // Step 4: Change status to Closed + bonus change date closed
         editForm.selectStatus(BugStatus.CLOSED);
         editForm.setDateClosed("22.09.2025");
         editForm.attachFile();
 
         ExtentReportManager.getTest().info("Changed status to Closed");
 
-        // Step 4: Submit the changes(Save changes)
+        // Step 5: Submit the changes(Save changes)
         BugsListPage finalPage = editForm.submit();
 
-        // Step 5: Click "closed" filter to see if bug status is now "closed"
+        // Step 6: Click "closed" filter to see if bug status is now "closed"
         finalPage.clickStatusFilter(BugTrackerLocators.FILTER_CLOSED_TEXT);
 
         ExtentReportManager.getTest().info("Clicked Closed filter");
 
-        // Step 6: Verify bug appears in Closed filter
+        // Step 7: Verify bug appears in Closed filter
         boolean isClosed = finalPage.isBugInCurrentFilter(bugId);
 
         assertThat(isClosed)

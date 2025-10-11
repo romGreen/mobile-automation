@@ -26,7 +26,6 @@ public class AutomationConfig {
     /**
      * Creates a ConfigReader bean.
      * This bean is used in the framework to read configuration values.
-     *
      * @return ConfigReader instance
      */
     @Bean
@@ -48,7 +47,6 @@ public class AutomationConfig {
     /**
      * Creates an AndroidDriver bean.
      * Prototype scope ensures each injection gets a fresh instance.
-     *
      * @param driverManager The driver manager (injected by Spring)
      * @return AndroidDriver instance
      */

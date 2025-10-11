@@ -33,6 +33,7 @@ public class CreateBugTest extends BaseTest {
 
     /**
      * Test: Create a new bug with required fields.
+     * I know "Fixed by" and "Date closed" should logically stay empty in creation but I wanted to test all the fields.
      *
      * Steps:
      * 1. Navigate to Create Bug form
@@ -89,6 +90,7 @@ public class CreateBugTest extends BaseTest {
 
     /**
      * Test: Create a bug using data from JSON file (Data-Driven Testing).
+     * I know "Fixed by" and "Date closed" should logically stay empty in creation but I wanted to test all the fields.
      *
      * Steps:
      * 1. Load bug data from JSON file

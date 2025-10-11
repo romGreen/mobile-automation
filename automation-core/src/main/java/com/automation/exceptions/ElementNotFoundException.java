@@ -7,9 +7,6 @@ package com.automation.exceptions;
  */
 public class ElementNotFoundException extends AutomationException {
 
-    private final String elementDescription;
-    private final String locatorStrategy;
-
     /**
      * Constructs an ElementNotFoundException with detailed element information.
      *
@@ -20,7 +17,5 @@ public class ElementNotFoundException extends AutomationException {
     public ElementNotFoundException(String elementDescription, String locatorStrategy, String message) {
         super(String.format("Element not found: %s (using %s). %s",
                 elementDescription, locatorStrategy, message));
-        this.elementDescription = elementDescription;
-        this.locatorStrategy = locatorStrategy;
     }
 }

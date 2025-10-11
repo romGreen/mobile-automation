@@ -7,7 +7,6 @@ import com.automation.utils.GestureHelper;
 import com.automation.utils.WaitHelper;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
-
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,18 +14,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Page Object for the Bugs List/Home screen.
+ * Page Object for the Bugs List page.
  *
- * This page displays the list of bugs and provides navigation to create new bugs.
- * Uses native Android UI elements accessed via UiAutomator.
- *
- * Demonstrates OOP principles:
- * - Inheritance: Extends BasePage
- * - Encapsulation: Hides page interaction complexity
- * - Single Responsibility: Manages only bugs list page
- * - Method chaining: Fluent API for readable tests
- *
- * @author Automation Team
+ * This page displays the list of bugs.
+ * Uses native Android UI elements accessed by UiAutomator.
+ * @author Rom
  * @version 1.0
  */
 @Component
@@ -55,7 +47,7 @@ public class BugsListPage extends BasePage {
     @Override
     public boolean isLoaded() {
         // Check for elements specific to the View Bugs page
-        // Use helper methods from BasePage for cleaner code
+        // Use helper methods from BasePage
         return isAnyElementPresentById(
                 BugTrackerLocators.VIEW_BUGS_PAGE_ID,
                 BugTrackerLocators.BUG_LIST_ID
@@ -65,7 +57,6 @@ public class BugsListPage extends BasePage {
 
     /**
      * Waits for a bug with the specified Bug ID to appear in the list.
-     * <p>
      * This method uses UiScrollable to automatically scroll through the bugs list
      * until the bug with the specified ID is found.
      *
@@ -74,12 +65,10 @@ public class BugsListPage extends BasePage {
      */
     public void waitForBugWithId(int bugId) {
         log.info("Waiting for bug with ID: {}", bugId);
-
-        // Wait for the list to fully load and animations to complete
-        // This prevents "Unable to perform W3C actions" errors
+        // Wait for the list to load
         sleep(2500);
 
-        // Scroll down slightly to make sure we're not at the top
+        // Scroll down a bit to make sure we're not at the top
         // This prevents pull-to-refresh from triggering when UiScrollable searches
         try {
             gestureHelper.scrollDown();
@@ -91,13 +80,11 @@ public class BugsListPage extends BasePage {
             gestureHelper.scrollDown();
             sleep(500);
         }
-
-        // Build the bug ID text pattern: "(ID: 889)"
+        // Build the bug ID text pattern"
         String bugIdText = "(ID: " + bugId + ")";
 
         try {
             // Use UiScrollable to automatically scroll and find the bug
-            // setAsVerticalList() ensures it only scrolls down, not up
             String scrollToBug =
                 "new UiScrollable(new UiSelector().scrollable(true))" +
                 ".setAsVerticalList()" +  // Only scroll vertically (down)
@@ -115,7 +102,6 @@ public class BugsListPage extends BasePage {
 
     /**
      * Reads all bug titles from the View Bugs list.
-     *
      * @return List of bug titles visible on the page
      */
     public java.util.List<String> getAllBugTitles() {
@@ -200,8 +186,8 @@ public class BugsListPage extends BasePage {
      * Clicks the Edit button for a bug with the specified Bug ID.
      * This opens the edit form for the bug.
      *
-     * Uses Bug ID to uniquely identify the correct Edit button, since multiple
-     * bugs may be visible on screen with their own Edit buttons.
+     * Uses Bug ID to uniquely identify the correct edit button, since multiple
+     * bugs may be visible on screen with their own edit buttons.
      *
      * @param bugId The unique Bug ID to edit
      * @return EditBugPage for editing the bug
@@ -334,7 +320,6 @@ public class BugsListPage extends BasePage {
 
     /**
      * Checks if a status filter button is currently visible on screen.
-     *
      * @param filterText The text of the filter to check
      * @return true if filter is visible, false otherwise
      */

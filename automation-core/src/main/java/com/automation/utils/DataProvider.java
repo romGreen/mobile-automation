@@ -31,12 +31,11 @@ public class DataProvider {
      * Private constructor to prevent instantiation (Utility class).
      */
     private DataProvider() {
-        throw new UnsupportedOperationException("Utility class - do not instantiate");
+        throw new UnsupportedOperationException("Utility class- don't instantiate");
     }
 
     /**
      * Loads bug test data from a JSON file.
-     *
      * @param jsonFileName Name of the JSON file in classpath (e.g., "testdata/bugs.json")
      * @return List of Bug objects
      */
@@ -74,7 +73,6 @@ public class DataProvider {
 
     /**
      * Loads a single bug from JSON file by index.
-     *
      * @param jsonFileName Name of the JSON file
      * @param index of the bug to load
      * @return The Bug object that fit the index
@@ -87,13 +85,11 @@ public class DataProvider {
                     String.format("Index %d out of bounds for bug list of size %d",
                             index, bugs.size()));
         }
-
         return bugs.get(index);
     }
 
     /**
      * Converts a Map to a Bug object.
-     *
      * @param bugMap Map containing bug data
      * @return Bug object
      */
@@ -163,13 +159,11 @@ public class DataProvider {
         if (bugMap.containsKey("attachedFile")) {
             builder.attachedFile(getString(bugMap, "attachedFile"));
         }
-
         return builder.build();
     }
 
     /**
      * Helper method to safely get a string value from a map.
-     *
      * @param map Map containing the value
      * @param key Key to retrieve
      * @return String value, or null if not present
@@ -191,11 +185,9 @@ public class DataProvider {
         if (value == null) {
             return null;
         }
-
         if (value instanceof Integer) {
             return (Integer) value;
         }
-
         try {
             return Integer.parseInt(value.toString());
         } catch (NumberFormatException e) {

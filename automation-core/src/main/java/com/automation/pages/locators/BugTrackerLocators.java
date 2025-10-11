@@ -73,11 +73,9 @@ public final class BugTrackerLocators {
     public static String uiSelectorById(String resourceId) {
         return String.format("new UiSelector().resourceId(\"%s\")", resourceId);
     }
-
     public static String uiSelectorByText(String text) {
         return String.format("new UiSelector().text(\"%s\")", text);
     }
-
     public static String uiSelectorByTextContains(String text) {
         return String.format("new UiSelector().textContains(\"%s\")", text);
     }

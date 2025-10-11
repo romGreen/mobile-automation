@@ -16,7 +16,6 @@ public enum BugStatus {
 
     /**
      * Constructor for BugStatus enum.
-     *
      * @param displayName The text that appears in the UI for this status
      */
     BugStatus(String displayName) {
@@ -25,7 +24,6 @@ public enum BugStatus {
 
     /**
      * Gets the display name for this status as shown in the application UI.
-     *
      * @return The display name string
      */
     public String getDisplayName() {

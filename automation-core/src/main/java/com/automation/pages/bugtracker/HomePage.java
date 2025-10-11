@@ -12,9 +12,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Page Object for the Home screen.
- * The home screen displays a welcome message and serves as the main entry point
- * of the application. Navigation to other screens is done
+ * Page Object for the Home screen. Not really used now but maybe will be used in the future so I built it.
+ * The home screen is the main entry point of the application. Navigation to other screens is done
  * by the navigation bar at the top of the screen.
  * @author Rom
  * @version 1.0

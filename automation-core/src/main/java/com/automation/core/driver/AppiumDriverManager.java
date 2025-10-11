@@ -16,7 +16,7 @@ import java.time.Duration;
  *
  * This class manages the lifecycle of an Appium AndroidDriver instance.
  * It handles driver initialization, configuration, and cleanup.
- * Registered as a Spring bean in AutomationConfig.
+ * Registered as Spring bean in AutomationConfig.
  *
  * @author Rom
  * @version 1.0
@@ -31,7 +31,6 @@ public class AppiumDriverManager implements DriverManager {
 
     /**
      * Constructs an AppiumDriverManager with injected configuration reader.
-     *
      * @param configReader The configuration reader to use for driver setup
      */
     @Autowired
@@ -104,9 +103,6 @@ public class AppiumDriverManager implements DriverManager {
 
     /**
      * Builds UiAutomator2options from configuration.
-     * This method encapsulates the driver configuration,
-     * making it easy to modify or extend.
-     *
      * @return Configured UiAutomator2Options
      */
     private UiAutomator2Options buildDriverOptions() {
@@ -165,7 +161,6 @@ public class AppiumDriverManager implements DriverManager {
 
     /**
      * Ensures the app is in the foreground after driver starts.
-     *
      * This handles edge cases where the app might not be the active app after session creation.
      */
     private void ensureAppInForeground() {

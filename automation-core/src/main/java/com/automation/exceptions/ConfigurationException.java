@@ -11,8 +11,6 @@ package com.automation.exceptions;
  */
 public class ConfigurationException extends AutomationException {
 
-    private final String configKey;
-
     /**
      * Constructs a ConfigurationException with a detailed message.
      *
@@ -20,7 +18,6 @@ public class ConfigurationException extends AutomationException {
      */
     public ConfigurationException(String message) {
         super(message);
-        this.configKey = null;
     }
 
     /**
@@ -31,6 +28,5 @@ public class ConfigurationException extends AutomationException {
      */
     public ConfigurationException(String message, Throwable cause) {
         super(message, cause);
-        this.configKey = null;
     }
 }

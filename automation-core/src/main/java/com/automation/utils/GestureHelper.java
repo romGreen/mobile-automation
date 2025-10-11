@@ -43,42 +43,6 @@ public class GestureHelper {
     }
 
     /**
-     * Performs a tap at specific coordinates.
-     *
-     * @param x X coordinate
-     * @param y Y coordinate
-     */
-    public void tapAt(int x, int y) {
-        log.debug("Tapping at coordinates: ({}, {})", x, y);
-
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, FINGER);
-        Sequence tap = new Sequence(finger, 1);
-
-        tap.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y));
-        tap.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-        tap.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
-        driver.perform(Collections.singletonList(tap));
-    }
-
-    /**
-     * Taps on a specific element.
-     *
-     * @param element The element to tap
-     */
-    public void tapElement(WebElement element) {
-        log.debug("Tapping on element: {}", element);
-        Point location = element.getLocation();
-        Dimension size = element.getSize();
-
-        // Tap at center of element
-        int centerX = location.getX() + (size.getWidth() / 2);
-        int centerY = location.getY() + (size.getHeight() / 2);
-
-        tapAt(centerX, centerY);
-    }
-
-    /**
      * Performs a swipe with custom duration.
      *
      * @param startX     Start X coordinate

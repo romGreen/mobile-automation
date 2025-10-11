@@ -21,13 +21,8 @@ import org.apache.logging.log4j.Logger;
  * - Logs test pass/fail status
  * - Captures test execution time
  * - Logs failure details and stack traces
- *
- * Demonstrates OOP principles:
- * - Observer pattern: Listens to test lifecycle events
- * - Single Responsibility: Handles only test reporting
- *
  * Usage:
- * Add @ExtendWith(TestListener.class) to test classes
+ * @ExtendWith(TestListener.class) add to test classes
  *
  * @author Rom
  * @version 1.0

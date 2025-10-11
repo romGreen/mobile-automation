@@ -12,14 +12,10 @@ import org.openqa.selenium.WebElement;
 /**
  * Abstract base class for form-based Page Objects (Create and Edit pages).
  *
- * This class extends BasePage and provides additional functionality specific to forms:
+ * This class extends BasePage and provides additional functionality specific to forms like:
  * - Form field interactions (dropdowns, date pickers, text inputs)
  * - Form submission
  * - File attachment
- *
- * This separation follows the Interface Segregation Principle - pages that don't need
- * form functionality (like HomePage and BugsListPage) don't inherit unused methods.
- *
  * @author Rom
  * @version 1.0
  */
@@ -70,8 +66,6 @@ public abstract class BaseFormPage extends BasePage {
         }
     }
 
-    // ===== Dropdown Selection Helper Methods =====
-
     /**
      * Selects a value from a dropdown field.
      * Generic method used by both CreateBugPage and EditBugPage.
@@ -120,8 +114,6 @@ public abstract class BaseFormPage extends BasePage {
             sleep(500);
         }
     }
-
-    // ===== Date Picker Helper Methods =====
 
     /**
      * Sets a date field by clicking it and selecting date from picker.
@@ -177,9 +169,9 @@ public abstract class BaseFormPage extends BasePage {
      * Selects a specific date from the date picker by navigating to the correct month/year.
      * Uses content-desc pattern: "DD monthName YYYY" (e.g., "19 אוקטובר 2025")
      *
-     * @param day Day component (e.g., "19")
-     * @param month Month number (1-12)
-     * @param year Year (e.g., "2025")
+     * @param day Day component
+     * @param month Month number
+     * @param year Year
      */
     private void selectDateInPicker(String day, int month, String year) {
         log.debug("Selecting date: day={}, month={}, year={}", day, month, year);
@@ -190,7 +182,7 @@ public abstract class BaseFormPage extends BasePage {
         // Get Hebrew month name
         String hebrewMonth = getHebrewMonthName(month);
 
-        // Build content-desc pattern: "19 אוקטובר 2025"
+        // Build content-desc pattern
         String contentDescPattern = dayWithoutZero + " " + hebrewMonth + " " + year;
         log.debug("Searching for content-desc: {}", contentDescPattern);
 
@@ -237,7 +229,7 @@ public abstract class BaseFormPage extends BasePage {
             return;
         }
 
-        // Last resort: click any date with the day number
+        // Last try: click any date with the day number
         log.warn("Could not find specific month/year, trying to select day {} only", dayWithoutZero);
 
         // Try with day only (text attribute)
@@ -268,9 +260,9 @@ public abstract class BaseFormPage extends BasePage {
     }
 
     /**
-     * Navigates the date picker to the target month/year.
+     * Navigates the date picker to the target month and year.
      *
-     * @param targetMonth Target month (1-12)
+     * @param targetMonth Target month
      * @param targetYear Target year
      */
     private void navigateToMonthYear(int targetMonth, int targetYear) {
@@ -406,8 +398,6 @@ public abstract class BaseFormPage extends BasePage {
         return null;
     }
 
-    // ===== Text Input Helper Methods =====
-
     /**
      * Clears a field and types new text using Actions class.
      * Generic method for text input on any form page.
@@ -427,13 +417,11 @@ public abstract class BaseFormPage extends BasePage {
         log.debug("Set value using Actions: {}", text);
     }
 
-    // ===== Form Submission Helper Methods =====
-
     /**
      * Submits a form by clicking a button identified by text.
      * Generic method used by both CreateBugPage and EditBugPage.
      *
-     * @param buttonText The text of the submit button (e.g., "Add Bug", "Save Changes")
+     * @param buttonText The text of the submit button ("Add Bug" or "Save Changes")
      * @param checkVisibilityFirst If true, only scrolls down if button is not visible
      * @return BugsListPage after successful submission
      */
@@ -483,11 +471,8 @@ public abstract class BaseFormPage extends BasePage {
         }
     }
 
-    // ===== File Attachment Helper Methods =====
-
     /**
      * Checks if file attachment is enabled in config.
-     *
      * @return true if file attachment is enabled, false otherwise
      */
     protected boolean isFileAttachmentEnabled() {
@@ -538,8 +523,8 @@ public abstract class BaseFormPage extends BasePage {
 
     /**
      * Navigates through the media picker and selects a photo from Camera folder.
-     * Flow: Media picker → Gallery → Camera folder → Select first photo (avoiding videos)
-     * <p>
+     * Flow: Media picker → Gallery → Camera folder → Select first photo (avoiding videos because I found out the app doesn't support them)
+     *
      * Common helper method for file attachment used by both CreateBugPage and EditBugPage.
      * This method assumes the attach file button has already been clicked.
      */
