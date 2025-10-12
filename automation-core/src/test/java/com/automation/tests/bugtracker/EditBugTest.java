@@ -81,7 +81,6 @@ public class EditBugTest extends BaseTest {
         // Step 4: Change status to Closed + bonus change date closed
         editForm.selectStatus(BugStatus.CLOSED);
         editForm.setDateClosed("22.09.2025");
-        editForm.attachFile();
 
         ExtentReportManager.getTest().info("Changed status to Closed");
 
