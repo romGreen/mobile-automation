@@ -42,7 +42,7 @@ public class EditBugTest extends BaseTest {
         ExtentReportManager.getTest().info("Starting test: Edit bug status from Open to Closed");
 
         // Step 1: Create a bug
-        int bugId = 905;  // Store bug ID in variable for reuse
+        int bugId = 907;  // Store bug ID in variable for reuse
         String Title = "Edit Test";
 
         // Navigate to Create Bug form from anywhere

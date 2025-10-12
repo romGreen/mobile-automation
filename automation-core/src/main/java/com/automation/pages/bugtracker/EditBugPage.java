@@ -59,7 +59,7 @@ public class EditBugPage extends BaseFormPage {
      */
     public EditBugPage setTitle(String title) {
         log.debug("Setting title: {}", title);
-        ensureFieldVisible(BugTrackerLocators.EDIT_BUG_TITLE_FIELD);
+        ensureFieldVisibleInEditPage(BugTrackerLocators.EDIT_BUG_TITLE_FIELD);
         WebElement field = waitHelper.waitForUiAutomator(
                 BugTrackerLocators.uiSelectorById(BugTrackerLocators.EDIT_BUG_TITLE_FIELD));
         clearAndType(field, title);
@@ -74,7 +74,7 @@ public class EditBugPage extends BaseFormPage {
      */
     public EditBugPage setActualResult(String actual) {
         log.debug("Setting actual result: {}", actual);
-        ensureFieldVisible(BugTrackerLocators.EDIT_BUG_ACTUAL_RESULT_FIELD);
+        ensureFieldVisibleInEditPage(BugTrackerLocators.EDIT_BUG_ACTUAL_RESULT_FIELD);
         WebElement field = waitHelper.waitForUiAutomator(
                 BugTrackerLocators.uiSelectorById(BugTrackerLocators.EDIT_BUG_ACTUAL_RESULT_FIELD));
         clearAndType(field, actual);
@@ -95,24 +95,13 @@ public class EditBugPage extends BaseFormPage {
      * Selects bug status from dropdown menu.
      *
      * @param status The status to select
+     * @return this page object for method chaining
      */
-    public void selectStatus(BugStatus status) {
+    public EditBugPage selectStatus(BugStatus status) {
         log.debug("Selecting status: {}", status);
-
-        // Ensure status field is visible with custom scroll actions
-        ensureFieldVisible(BugTrackerLocators.EDIT_BUG_STATUS_FIELD,
-            () -> {
-                gestureHelper.scrollLeft();
-                sleep(500);
-            },
-            () -> {
-                gestureHelper.scrollDown();
-                sleep(500);
-            }
-        );
-
-        // Use generic method from BasePage with EditBugPage locator
+        ensureFieldVisibleInEditPage(BugTrackerLocators.EDIT_BUG_STATUS_FIELD);
         selectDropdownField(BugTrackerLocators.EDIT_BUG_STATUS_FIELD, status.getDisplayName());
+        return this;
     }
 
     /**
@@ -123,7 +112,7 @@ public class EditBugPage extends BaseFormPage {
      */
     public EditBugPage selectSeverity(BugSeverity severity) {
         log.debug("Selecting severity: {}", severity);
-        ensureFieldVisible(BugTrackerLocators.EDIT_BUG_SEVERITY_FIELD);
+        ensureFieldVisibleInEditPage(BugTrackerLocators.EDIT_BUG_SEVERITY_FIELD);
         selectDropdownField(BugTrackerLocators.EDIT_BUG_SEVERITY_FIELD, severity.getDisplayName());
         return this;
     }
@@ -135,7 +124,7 @@ public class EditBugPage extends BaseFormPage {
      */
     public EditBugPage selectPriority(BugPriority priority) {
         log.debug("Selecting priority: {}", priority);
-        ensureFieldVisible(BugTrackerLocators.EDIT_BUG_PRIORITY_FIELD);
+        ensureFieldVisibleInEditPage(BugTrackerLocators.EDIT_BUG_PRIORITY_FIELD);
         selectDropdownField(BugTrackerLocators.EDIT_BUG_PRIORITY_FIELD, priority.getDisplayName());
         return this;
     }
@@ -147,7 +136,7 @@ public class EditBugPage extends BaseFormPage {
      */
     public EditBugPage setFixedBy(String fixedBy) {
         log.debug("Setting fixed by: {}", fixedBy);
-        ensureFieldVisible(BugTrackerLocators.EDIT_BUG_FIXED_BY_FIELD);
+        ensureFieldVisibleInEditPage(BugTrackerLocators.EDIT_BUG_FIXED_BY_FIELD);
         WebElement field = waitHelper.waitForUiAutomator(
                 BugTrackerLocators.uiSelectorById(BugTrackerLocators.EDIT_BUG_FIXED_BY_FIELD));
         clearAndType(field, fixedBy);
@@ -161,6 +150,8 @@ public class EditBugPage extends BaseFormPage {
      */
     public EditBugPage setDateClosed(String dateClosed) {
         log.debug("Setting date closed field: {}", dateClosed);
+        // Ensure field is visible first using safe scroll pattern
+        ensureFieldVisibleInEditPage(BugTrackerLocators.EDIT_BUG_DATE_CLOSED_FIELD);
         // Use generic method from BasePage with EditBugPage locator
         setDateField(BugTrackerLocators.EDIT_BUG_DATE_CLOSED_FIELD, dateClosed);
         return this;
@@ -218,7 +209,7 @@ public class EditBugPage extends BaseFormPage {
         log.info("Attempting to attach a file using media picker");
 
         // Ensure attach button is visible
-        ensureFieldVisible(BugTrackerLocators.EDIT_BUG_FILE_BUTTON);
+        ensureFieldVisibleInEditPage(BugTrackerLocators.EDIT_BUG_FILE_BUTTON);
 
         // Click attach button
         WebElement attachButton = waitHelper.waitForUiAutomator(
@@ -230,6 +221,46 @@ public class EditBugPage extends BaseFormPage {
         openMediaPickerAndSelectPhoto();
 
         return this;
+    }
+
+    /**
+     * Ensures a field is visible in the edit page using a safe scroll pattern
+     * to avoid triggering the pull-to-refresh gesture.
+     *
+     * The edit page may be opened at different scroll positions depending on which bug
+     * was clicked in the list (top bugs open at top, bottom bugs open at bottom).
+     * This means we may need to scroll UP or DOWN to reach fields.
+     *
+     * @param fieldLocator The resource ID of the field to make visible
+     */
+    private void ensureFieldVisibleInEditPage(String fieldLocator) {
+        // Check if field is already visible
+        if (isElementPresentById(fieldLocator)) {
+            log.debug("Field '{}' already visible in EditPage, skipping scroll", fieldLocator);
+            return;
+        }
+
+        log.debug("Field '{}' not visible in EditPage, performing safe scroll", fieldLocator);
+
+        // Scroll left to move to center of screen (away from edge)
+        gestureHelper.scrollLeft();
+        sleep(500);
+
+        // Scroll down once to reach bottom (edit page is short, 1 scroll is enough)
+        gestureHelper.scrollDown();
+        sleep(300);
+
+        // Check if field is now visible at the bottom
+        if (isElementPresentById(fieldLocator)) {
+            log.debug("Field '{}' found at bottom after scrolling down", fieldLocator);
+            return;
+        }
+
+        // Field not at bottom, it must be at the top
+        // Now safe to scroll up because we're at the bottom (won't trigger pull-to-refresh)
+        log.debug("Field '{}' not at bottom, scrolling up to find it", fieldLocator);
+        gestureHelper.scrollToElement(fieldLocator);
+        sleep(500);
     }
 
     /**

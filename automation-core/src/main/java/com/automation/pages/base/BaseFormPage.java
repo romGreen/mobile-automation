@@ -36,36 +36,6 @@ public abstract class BaseFormPage extends BasePage {
         super(driver, waitHelper, gestureHelper, configReader);
     }
 
-    // ===== Field Visibility Helper Methods =====
-
-    /**
-     * Ensures a field is visible by scrolling if necessary.
-     * Checks visibility first before scrolling.
-     *
-     * @param fieldLocator The resource ID of the field
-     * @param scrollActions Optional custom scroll actions (e.g., scrollLeft then scrollDown for EditPage)
-     */
-    protected void ensureFieldVisible(String fieldLocator, Runnable... scrollActions) {
-        // Check if field is already visible
-        if (isElementPresentById(fieldLocator)) {
-            log.debug("Field '{}' already visible, skipping scroll", fieldLocator);
-            return;
-        }
-
-        // Field not visible, perform scroll actions
-        if (scrollActions.length > 0) {
-            log.debug("Field '{}' not visible, performing custom scroll", fieldLocator);
-            for (Runnable action : scrollActions) {
-                action.run();
-            }
-        } else {
-            // Default: scroll to element
-            log.debug("Field '{}' not visible, scrolling to element", fieldLocator);
-            gestureHelper.scrollToElement(fieldLocator);
-            sleep(500);
-        }
-    }
-
     /**
      * Selects a value from a dropdown field.
      * Generic method used by both CreateBugPage and EditBugPage.
